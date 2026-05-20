@@ -1,4 +1,4 @@
-package re.edu.model.entity;
+package re.edu.model.enums;
 
 public enum AssignmentStatus {
     PENDING,

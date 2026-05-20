@@ -1,4 +1,4 @@
-package re.edu.model.dto.request.nnternshipPhaseReq;
+package re.edu.model.dto.request.internshipPhaseReq;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

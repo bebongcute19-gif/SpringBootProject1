@@ -1,4 +1,8 @@
 package re.edu.exception;
 
-public class BadCredentialsExceptionCustom {
+public class BadCredentialsExceptionCustom extends RuntimeException {
+    public BadCredentialsExceptionCustom(String message) {
+        super(message);
+    }
 }
+

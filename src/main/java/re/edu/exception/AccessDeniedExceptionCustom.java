@@ -1,4 +1,7 @@
 package re.edu.exception;
 
-public class AccessDeniedExceptionCustom {
+public class AccessDeniedExceptionCustom extends RuntimeException {
+    public AccessDeniedExceptionCustom(String message) {
+        super(message);
+    }
 }

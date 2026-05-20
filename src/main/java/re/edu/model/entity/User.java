@@ -3,16 +3,18 @@ package re.edu.model.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import re.edu.model.enums.Role;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
-public class Users {
+@Table(name= "Users")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     @Column(nullable = false, unique = true, length = 50)
     private String username;
     @Column(nullable = false, length = 255)
@@ -28,5 +30,9 @@ public class Users {
     private Boolean isActive=true;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Student student;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Mentor mentor;
 }
