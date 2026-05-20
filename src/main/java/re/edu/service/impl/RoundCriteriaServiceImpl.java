@@ -19,245 +19,137 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RoundCriteriaServiceImpl
-        implements RoundCriteriaService {
+public class RoundCriteriaServiceImpl implements RoundCriteriaService {
 
-    private final RoundCriteriaRepository
-            roundCriteriaRepository;
+    private final RoundCriteriaRepository roundCriteriaRepository;
 
-    private final AssessmentRoundRepository
-            assessmentRoundRepository;
+    private final AssessmentRoundRepository assessmentRoundRepository;
 
-    private final EvaluationCriteriaRepository
-            evaluationCriteriaRepository;
+    private final EvaluationCriteriaRepository evaluationCriteriaRepository;
 
     @Override
-    public List<RoundCriteriaResponse>
-    getAllRoundCriteria(Integer roundId) {
+    public List<RoundCriteriaResponse> getAllRoundCriteria(Integer roundId) {
 
         List<RoundCriteria> list;
 
         if (roundId != null) {
 
-            list = roundCriteriaRepository
-                    .findByRound_Id(roundId);
+            list = roundCriteriaRepository.findByRound_Id(roundId);
 
         } else {
 
             list = roundCriteriaRepository.findAll();
         }
 
-        return list.stream()
-                .map(this::toResponse)
-                .toList();
+        return list.stream().map(this::toResponse).toList();
     }
 
     @Override
-    public RoundCriteriaResponse
-    getRoundCriteriaById(Integer id) {
+    public RoundCriteriaResponse getRoundCriteriaById(Integer id) {
 
-        RoundCriteria roundCriteria =
-                roundCriteriaRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Round criteria not found"
-                                )
-                        );
+        RoundCriteria roundCriteria = roundCriteriaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tiêu chí của đợt đánh giá"));
 
         return toResponse(roundCriteria);
     }
 
     @Override
-    public RoundCriteriaResponse
-    createRoundCriteria(
-            RoundCriteriaRequest request
-    ) {
+    public RoundCriteriaResponse createRoundCriteria(RoundCriteriaRequest request) {
 
         validateRequest(request);
 
-        boolean exists =
-                roundCriteriaRepository
-                        .findByRound_IdAndCriterion_CriterionId(
-                                request.getRoundId(),
-                                request.getCriterionId()
-                        )
-                        .isPresent();
+        boolean exists = roundCriteriaRepository.findByRound_IdAndCriterion_CriterionId(request.getRoundId(), request.getCriterionId()).isPresent();
 
         if (exists) {
 
-            throw new IllegalArgumentException(
-                    "Criterion already exists in this round"
-            );
+            throw new IllegalArgumentException("Tiêu chí đã tồn tại trong đợt đánh giá này");
         }
 
-        AssessmentRound round =
-                assessmentRoundRepository
-                        .findById(request.getRoundId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assessment round not found"
-                                )
-                        );
+        AssessmentRound round = assessmentRoundRepository.findById(request.getRoundId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đánh giá"));
 
-        EvaluationCriteria criterion =
-                evaluationCriteriaRepository
-                        .findById(
-                                request.getCriterionId()
-                        )
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Evaluation criteria not found"
-                                )
-                        );
+        EvaluationCriteria criterion = evaluationCriteriaRepository.findById(request.getCriterionId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tiêu chí đánh giá"));
 
-        RoundCriteria roundCriteria =
-                new RoundCriteria();
+        RoundCriteria roundCriteria = new RoundCriteria();
 
         roundCriteria.setRound(round);
 
         roundCriteria.setCriterion(criterion);
 
-        roundCriteria.setWeight(
-                request.getWeight()
-        );
+        roundCriteria.setWeight(request.getWeight());
 
-        roundCriteria.setCreatedAt(
-                LocalDateTime.now()
-        );
+        roundCriteria.setCreatedAt(LocalDateTime.now());
 
-        roundCriteria.setUpdatedAt(
-                LocalDateTime.now()
-        );
+        roundCriteria.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                roundCriteriaRepository
-                        .save(roundCriteria)
-        );
+        return toResponse(roundCriteriaRepository.save(roundCriteria));
     }
 
     @Override
-    public RoundCriteriaResponse
-    updateRoundCriteria(
-            Integer id,
-            RoundCriteriaRequest request
-    ) {
+    public RoundCriteriaResponse updateRoundCriteria(Integer id, RoundCriteriaRequest request) {
 
-        RoundCriteria roundCriteria =
-                roundCriteriaRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Round criteria not found"
-                                )
-                        );
+        RoundCriteria roundCriteria = roundCriteriaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tiêu chí của đợt đánh giá"));
 
         if (request.getWeight() != null) {
 
-            if (request.getWeight()
-                    .compareTo(BigDecimal.ZERO) <= 0) {
+            if (request.getWeight().compareTo(BigDecimal.ZERO) <= 0) {
 
-                throw new IllegalArgumentException(
-                        "Weight must be greater than 0"
-                );
+                throw new IllegalArgumentException("Trọng số phải lớn hơn 0");
             }
 
-            roundCriteria.setWeight(
-                    request.getWeight()
-            );
+            roundCriteria.setWeight(request.getWeight());
         }
 
-        roundCriteria.setUpdatedAt(
-                LocalDateTime.now()
-        );
+        roundCriteria.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                roundCriteriaRepository
-                        .save(roundCriteria)
-        );
+        return toResponse(roundCriteriaRepository.save(roundCriteria));
     }
 
     @Override
     public void deleteRoundCriteria(Integer id) {
 
-        RoundCriteria roundCriteria =
-                roundCriteriaRepository
-                        .findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Round criteria not found"
-                                )
-                        );
+        RoundCriteria roundCriteria = roundCriteriaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tiêu chí của đợt đánh giá"));
 
         roundCriteriaRepository.delete(roundCriteria);
     }
 
-    private RoundCriteriaResponse
-    toResponse(RoundCriteria rc) {
+    private RoundCriteriaResponse toResponse(RoundCriteria rc) {
 
-        RoundCriteriaResponse response =
-                new RoundCriteriaResponse();
+        RoundCriteriaResponse response = new RoundCriteriaResponse();
 
-        response.setRoundCriterionId(
-                rc.getRoundCriterionId()
-        );
+        response.setRoundCriterionId(rc.getRoundCriterionId());
 
-        response.setRoundId(
-                rc.getRound().getId()
-        );
+        response.setRoundId(rc.getRound().getId());
 
-        response.setRoundName(
-                rc.getRound().getRoundName()
-        );
+        response.setRoundName(rc.getRound().getRoundName());
 
-        response.setCriterionId(
-                rc.getCriterion()
-                        .getCriterionId()
-        );
+        response.setCriterionId(rc.getCriterion().getCriterionId());
 
-        response.setCriterionName(
-                rc.getCriterion()
-                        .getCriterionName()
-        );
+        response.setCriterionName(rc.getCriterion().getCriterionName());
 
-        response.setWeight(
-                rc.getWeight()
-        );
+        response.setWeight(rc.getWeight());
 
         return response;
     }
 
-    private void validateRequest(
-            RoundCriteriaRequest request
-    ) {
+    private void validateRequest(RoundCriteriaRequest request) {
 
         if (request.getRoundId() == null) {
 
-            throw new IllegalArgumentException(
-                    "Round id is required"
-            );
+            throw new IllegalArgumentException("Mã đợt đánh giá không được để trống");
         }
 
         if (request.getCriterionId() == null) {
 
-            throw new IllegalArgumentException(
-                    "Criterion id is required"
-            );
+            throw new IllegalArgumentException("Mã tiêu chí đánh giá không được để trống");
         }
 
         if (request.getWeight() == null) {
 
-            throw new IllegalArgumentException(
-                    "Weight is required"
-            );
+            throw new IllegalArgumentException("Trọng số không được để trống");
         }
 
-        if (request.getWeight()
-                .compareTo(BigDecimal.ZERO) <= 0) {
+        if (request.getWeight().compareTo(BigDecimal.ZERO) <= 0) {
 
-            throw new IllegalArgumentException(
-                    "Weight must be greater than 0"
-            );
+            throw new IllegalArgumentException("Trọng số phải lớn hơn 0");
         }
     }
 }

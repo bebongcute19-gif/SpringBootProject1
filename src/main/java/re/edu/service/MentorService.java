@@ -13,6 +13,5 @@ public interface MentorService {
 
     MentorResponse createMentor(MentorRequest request);
 
-    MentorResponse updateMentor(Integer mentorId,
-                                MentorRequest request);
+    MentorResponse updateMentor(Integer mentorId, MentorRequest request);
 }

@@ -15,38 +15,26 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class InternshipPhaseServiceImpl
-        implements InternshipPhaseService {
+public class InternshipPhaseServiceImpl implements InternshipPhaseService {
 
     private final InternshipPhaseRepository internshipPhaseRepository;
 
     @Override
     public List<InternshipPhaseResponse> getAllPhases() {
 
-        return internshipPhaseRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return internshipPhaseRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     @Override
     public InternshipPhaseResponse getPhaseById(Integer phaseId) {
 
-        InternshipPhase phase = internshipPhaseRepository
-                .findById(phaseId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Internship phase not found"
-                        )
-                );
+        InternshipPhase phase = internshipPhaseRepository.findById(phaseId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
 
         return toResponse(phase);
     }
 
     @Override
-    public InternshipPhaseResponse createPhase(
-            InternshipPhaseRequest request
-    ) {
+    public InternshipPhaseResponse createPhase(InternshipPhaseRequest request) {
 
         validateDate(request);
 
@@ -60,26 +48,15 @@ public class InternshipPhaseServiceImpl
         phase.setCreatedAt(LocalDateTime.now());
         phase.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                internshipPhaseRepository.save(phase)
-        );
+        return toResponse(internshipPhaseRepository.save(phase));
     }
 
     @Override
-    public InternshipPhaseResponse updatePhase(
-            Integer phaseId,
-            InternshipPhaseRequest request
-    ) {
+    public InternshipPhaseResponse updatePhase(Integer phaseId, InternshipPhaseRequest request) {
 
         validateDate(request);
 
-        InternshipPhase phase = internshipPhaseRepository
-                .findById(phaseId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Internship phase not found"
-                        )
-                );
+        InternshipPhase phase = internshipPhaseRepository.findById(phaseId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
 
         phase.setPhaseName(request.getPhaseName());
         phase.setDescription(request.getDescription());
@@ -88,31 +65,20 @@ public class InternshipPhaseServiceImpl
 
         phase.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                internshipPhaseRepository.save(phase)
-        );
+        return toResponse(internshipPhaseRepository.save(phase));
     }
 
     @Override
     public void deletePhase(Integer phaseId) {
 
-        InternshipPhase phase = internshipPhaseRepository
-                .findById(phaseId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Internship phase not found"
-                        )
-                );
+        InternshipPhase phase = internshipPhaseRepository.findById(phaseId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
 
         internshipPhaseRepository.delete(phase);
     }
 
-    private InternshipPhaseResponse toResponse(
-            InternshipPhase phase
-    ) {
+    private InternshipPhaseResponse toResponse(InternshipPhase phase) {
 
-        InternshipPhaseResponse response =
-                new InternshipPhaseResponse();
+        InternshipPhaseResponse response = new InternshipPhaseResponse();
 
         response.setId(phase.getPhaseId());
         response.setPhaseName(phase.getPhaseName());
@@ -123,16 +89,11 @@ public class InternshipPhaseServiceImpl
         return response;
     }
 
-    private void validateDate(
-            InternshipPhaseRequest request
-    ) {
+    private void validateDate(InternshipPhaseRequest request) {
 
-        if (request.getEndDate()
-                .isBefore(request.getStartDate())) {
+        if (request.getEndDate().isBefore(request.getStartDate())) {
 
-            throw new IllegalArgumentException(
-                    "End date must be after start date"
-            );
+            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
         }
     }
 }

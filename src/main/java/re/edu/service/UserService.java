@@ -14,28 +14,15 @@ public interface UserService {
 
     UserResponse getUserById(Integer userId);
 
-    UserResponse updateUser(
-            Integer userId,
-            UpdateUserRequest req
-    );
+    UserResponse updateUser(Integer userId, UpdateUserRequest req);
 
-    String updateUserPassword(
-            Integer userId,
-            UpdatePasswordRequest req
-    );
+    String updateUserPassword(Integer userId, UpdatePasswordRequest req);
 
-    String updateUserStatus(
-            Integer userId,
-            Boolean status
-    );
+    String updateUserStatus(Integer userId, Boolean status);
 
-    String updateUserRole(
-            Integer userId,
-            Role role
-    );
+    String updateUserRole(Integer userId, Role role);
 
-    String deleteUser(
-            Integer userId
-    );
+    String deleteUser(Integer userId);
+
     UserResponse createUser(UserCreateDTO req);
 }

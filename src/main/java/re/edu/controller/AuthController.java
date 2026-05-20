@@ -33,7 +33,7 @@ public class AuthController {
                         authService.login(req),
                         null,
                         200,
-                        "Login successfully"
+                        "Đăng nhập thành công"
                 )
         );
     }
@@ -53,7 +53,7 @@ public class AuthController {
                         authService.verifyToken(req),
                         null,
                         200,
-                        "Verify token successfully"
+                        "Xác thực token thành công"
                 )
         );
     }
@@ -70,7 +70,7 @@ public class AuthController {
                         authService.getCurrentUser(),
                         null,
                         200,
-                        "Get current user successfully"
+                        "Lấy thông tin người dùng hiện tại thành công"
                 )
         );
     }

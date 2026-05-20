@@ -32,7 +32,7 @@ public class EvaluationCriteriaController {
                                 .getAllCriteria(),
                         null,
                         200,
-                        "Get evaluation criteria successfully"
+                        "Lấy danh sách tiêu chí đánh giá thành công"
                 )
         );
     }
@@ -55,7 +55,7 @@ public class EvaluationCriteriaController {
                                 ),
                         null,
                         200,
-                        "Get evaluation criteria successfully"
+                        "Lấy thông tin tiêu chí đánh giá thành công"
                 )
         );
     }
@@ -79,7 +79,7 @@ public class EvaluationCriteriaController {
                                         ),
                                 null,
                                 201,
-                                "Create evaluation criteria successfully"
+                                "Tạo tiêu chí đánh giá thành công"
                         )
                 );
     }
@@ -103,7 +103,7 @@ public class EvaluationCriteriaController {
                                 ),
                         null,
                         200,
-                        "Update evaluation criteria successfully"
+                        "Cập nhật tiêu chí đánh giá thành công"
                 )
         );
     }
@@ -124,7 +124,7 @@ public class EvaluationCriteriaController {
                         null,
                         null,
                         200,
-                        "Delete evaluation criteria successfully"
+                        "Xóa tiêu chí đánh giá thành công"
                 )
         );
     }

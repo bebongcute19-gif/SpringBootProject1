@@ -21,107 +21,59 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AssessmentResultServiceImpl
-        implements AssessmentResultService {
+public class AssessmentResultServiceImpl implements AssessmentResultService {
 
     private final AssessmentResultRepository resultRepository;
 
-    private final InternshipAssignmentRepository
-            assignmentRepository;
+    private final InternshipAssignmentRepository assignmentRepository;
 
-    private final AssessmentRoundRepository
-            roundRepository;
+    private final AssessmentRoundRepository roundRepository;
 
-    private final EvaluationCriteriaRepository
-            criteriaRepository;
+    private final EvaluationCriteriaRepository criteriaRepository;
 
     @Override
-    public List<AssessmentResultResponse>
-    getAllResults(Integer assignmentId) {
+    public List<AssessmentResultResponse> getAllResults(Integer assignmentId) {
 
         List<AssessmentResult> results;
 
         if (assignmentId != null) {
 
-            results =
-                    resultRepository
-                            .findByAssignment_AssignmentId(
-                                    assignmentId
-                            );
+            results = resultRepository.findByAssignment_AssignmentId(assignmentId);
 
         } else {
 
             results = resultRepository.findAll();
         }
 
-        return results.stream()
-                .map(this::toResponse)
-                .toList();
+        return results.stream().map(this::toResponse).toList();
     }
 
     @Override
-    public AssessmentResultResponse createResult(
-            AssessmentResultRequest request
-    ) {
+    public AssessmentResultResponse createResult(AssessmentResultRequest request) {
 
-        InternshipAssignment assignment =
-                assignmentRepository.findById(
-                        request.getAssignmentId()
-                ).orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Assignment not found"
-                        )
-                );
+        InternshipAssignment assignment = assignmentRepository.findById(request.getAssignmentId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công thực tập"));
 
-        AssessmentRound round =
-                roundRepository.findById(
-                        request.getRoundId()
-                ).orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Round not found"
-                        )
-                );
+        AssessmentRound round = roundRepository.findById(request.getRoundId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đánh giá"));
 
-        EvaluationCriteria criterion =
-                criteriaRepository.findById(
-                        request.getCriterionId()
-                ).orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Criterion not found"
-                        )
-                );
+        EvaluationCriteria criterion = criteriaRepository.findById(request.getCriterionId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tiêu chí đánh giá"));
 
         User currentUser = getCurrentUser();
 
         // ===== CHỈ MENTOR ĐƯỢC PHÂN CÔNG =====
-        if (!assignment.getMentor()
-                .getId()
-                .equals(currentUser.getId())) {
+        if (!assignment.getMentor().getId().equals(currentUser.getId())) {
 
-            throw new IllegalArgumentException(
-                    "Bạn không được phân công sinh viên này"
-            );
+            throw new IllegalArgumentException("Bạn không được phân công hướng dẫn sinh viên này");
         }
 
         // ===== DUPLICATE =====
-        boolean exists =
-                resultRepository
-                        .findByAssignment_AssignmentIdAndRound_IdAndCriterion_CriterionId(
-                                request.getAssignmentId(),
-                                request.getRoundId(),
-                                request.getCriterionId()
-                        )
-                        .isPresent();
+        boolean exists = resultRepository.findByAssignment_AssignmentIdAndRound_IdAndCriterion_CriterionId(request.getAssignmentId(), request.getRoundId(), request.getCriterionId()).isPresent();
 
         if (exists) {
 
-            throw new IllegalArgumentException(
-                    "Assessment result already exists"
-            );
+            throw new IllegalArgumentException("Kết quả đánh giá đã tồn tại");
         }
 
-        AssessmentResult result =
-                new AssessmentResult();
+        AssessmentResult result = new AssessmentResult();
 
         result.setAssignment(assignment);
 
@@ -131,158 +83,77 @@ public class AssessmentResultServiceImpl
 
         result.setScore(request.getScore());
 
-        result.setComments(
-                request.getComments()
-        );
+        result.setComments(request.getComments());
 
         result.setEvaluatedBy(currentUser);
 
-        result.setEvaluationDate(
-                LocalDateTime.now()
-        );
+        result.setEvaluationDate(LocalDateTime.now());
 
-        return toResponse(
-                resultRepository.save(result)
-        );
+        return toResponse(resultRepository.save(result));
     }
 
     @Override
-    public AssessmentResultResponse updateResult(
-            Integer resultId,
-            AssessmentResultUpdateRequest request
-    ) {
+    public AssessmentResultResponse updateResult(Integer resultId, AssessmentResultUpdateRequest request) {
 
-        AssessmentResult result =
-                resultRepository.findById(resultId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assessment result not found"
-                                )
-                        );
+        AssessmentResult result = resultRepository.findById(resultId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy kết quả đánh giá"));
 
-        User currentUser =
-                getCurrentUser();
+        User currentUser = getCurrentUser();
 
         // ===== CHỈ SỬA KẾT QUẢ CỦA CHÍNH MÌNH =====
-        if (!result.getEvaluatedBy()
-                .getId()
-                .equals(currentUser.getId())) {
+        if (!result.getEvaluatedBy().getId().equals(currentUser.getId())) {
 
-            throw new IllegalArgumentException(
-                    "Bạn không thể sửa kết quả của mentor khác"
-            );
+            throw new IllegalArgumentException("Bạn không thể chỉnh sửa kết quả đánh giá của mentor khác");
         }
 
-        result.setScore(
-                request.getScore()
-        );
+        result.setScore(request.getScore());
 
-        result.setComments(
-                request.getComments()
-        );
+        result.setComments(request.getComments());
 
-        return toResponse(
-                resultRepository.save(result)
-        );
+        return toResponse(resultRepository.save(result));
     }
 
     private User getCurrentUser() {
 
-        Authentication auth =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        CustomUserDetails userDetails =
-                (CustomUserDetails)
-                        auth.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
 
         return userDetails.getUser();
     }
 
-    private AssessmentResultResponse toResponse(
-            AssessmentResult result
-    ) {
+    private AssessmentResultResponse toResponse(AssessmentResult result) {
 
-        AssessmentResultResponse response =
-                new AssessmentResultResponse();
+        AssessmentResultResponse response = new AssessmentResultResponse();
 
-        response.setResultId(
-                result.getResultId()
-        );
+        response.setResultId(result.getResultId());
 
-        response.setAssignmentId(
-                result.getAssignment()
-                        .getAssignmentId()
-        );
+        response.setAssignmentId(result.getAssignment().getAssignmentId());
 
-        response.setStudentId(
-                result.getAssignment()
-                        .getStudent()
-                        .getId()
-        );
+        response.setStudentId(result.getAssignment().getStudent().getId());
 
-        response.setStudentName(
-                result.getAssignment()
-                        .getStudent()
-                        .getUser()
-                        .getFullName()
-        );
+        response.setStudentName(result.getAssignment().getStudent().getUser().getFullName());
 
-        response.setMentorId(
-                result.getAssignment()
-                        .getMentor()
-                        .getId()
-        );
+        response.setMentorId(result.getAssignment().getMentor().getId());
 
-        response.setMentorName(
-                result.getAssignment()
-                        .getMentor()
-                        .getUser()
-                        .getFullName()
-        );
+        response.setMentorName(result.getAssignment().getMentor().getUser().getFullName());
 
-        response.setRoundId(
-                result.getRound()
-                        .getId()
-        );
+        response.setRoundId(result.getRound().getId());
 
-        response.setRoundName(
-                result.getRound()
-                        .getRoundName()
-        );
+        response.setRoundName(result.getRound().getRoundName());
 
-        response.setCriterionId(
-                result.getCriterion()
-                        .getCriterionId()
-        );
+        response.setCriterionId(result.getCriterion().getCriterionId());
 
-        response.setCriterionName(
-                result.getCriterion()
-                        .getCriterionName()
-        );
+        response.setCriterionName(result.getCriterion().getCriterionName());
 
-        response.setScore(
-                result.getScore()
-        );
+        response.setScore(result.getScore());
 
-        response.setComments(
-                result.getComments()
-        );
+        response.setComments(result.getComments());
 
-        response.setEvaluatedById(
-                result.getEvaluatedBy()
-                        .getId()
-        );
+        response.setEvaluatedById(result.getEvaluatedBy().getId());
 
-        response.setEvaluatedByName(
-                result.getEvaluatedBy()
-                        .getFullName()
-        );
+        response.setEvaluatedByName(result.getEvaluatedBy().getFullName());
 
-        response.setEvaluationDate(
-                result.getEvaluationDate()
-        );
+        response.setEvaluationDate(result.getEvaluationDate());
 
         return response;
     }

@@ -52,72 +52,52 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse register(UserCreateDTO req) {
 
         // validate username
-        if (req.getUsername() == null
-                || req.getUsername().isBlank()) {
+        if (req.getUsername() == null || req.getUsername().isBlank()) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Username không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Tên đăng nhập không được để trống");
         }
 
         // validate password
-        if (req.getPassword() == null
-                || req.getPassword().isBlank()) {
+        if (req.getPassword() == null || req.getPassword().isBlank()) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Password không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Mật khẩu không được để trống");
         }
 
         // validate fullname
-        if (req.getFullName() == null
-                || req.getFullName().isBlank()) {
+        if (req.getFullName() == null || req.getFullName().isBlank()) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Họ tên không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Họ tên không được để trống");
         }
 
         // validate email
-        if (req.getEmail() == null
-                || req.getEmail().isBlank()) {
+        if (req.getEmail() == null || req.getEmail().isBlank()) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Email không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Email không được để trống");
         }
 
         // validate role
         if (req.getRole() == null) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Role không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Vai trò không được để trống");
         }
 
         // duplicate email
         if (userRepository.existsByEmail(req.getEmail())) {
 
-            throw new DuplicateResourceException(
-                    "Email đã tồn tại"
-            );
+            throw new DuplicateResourceException("Email đã tồn tại");
         }
 
         // duplicate username
         if (userRepository.existsByUsername(req.getUsername())) {
 
-            throw new DuplicateResourceException(
-                    "Username đã tồn tại"
-            );
+            throw new DuplicateResourceException("Tên đăng nhập đã tồn tại");
         }
 
         User newUser = new User();
 
         newUser.setUsername(req.getUsername());
 
-        newUser.setPasswordHash(
-                passwordEncoder.encode(req.getPassword())
-        );
+        newUser.setPasswordHash(passwordEncoder.encode(req.getPassword()));
 
         newUser.setEmail(req.getEmail());
 
@@ -129,10 +109,7 @@ public class AuthServiceImpl implements AuthService {
 
         User savedUser = userRepository.save(newUser);
 
-        return modelMapper.map(
-                savedUser,
-                UserResponse.class
-        );
+        return modelMapper.map(savedUser, UserResponse.class);
     }
 
     /**
@@ -144,77 +121,41 @@ public class AuthServiceImpl implements AuthService {
     public JwtResponse login(UserLoginDTO req) {
 
         // validate username
-        if (req.getUsername() == null
-                || req.getUsername().isBlank()) {
+        if (req.getUsername() == null || req.getUsername().isBlank()) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Username không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Tên đăng nhập không được để trống");
         }
 
         // validate password
-        if (req.getPassword() == null
-                || req.getPassword().isBlank()) {
+        if (req.getPassword() == null || req.getPassword().isBlank()) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Password không được để trống"
-            );
+            throw new BadCredentialsExceptionCustom("Mật khẩu không được để trống");
         }
 
-        User user = userRepository.findUserByUsername(
-                        req.getUsername()
-                )
-                .orElseThrow(() ->
-                        new BadCredentialsExceptionCustom(
-                                "Username hoặc mật khẩu không đúng"
-                        ));
+        User user = userRepository.findUserByUsername(req.getUsername()).orElseThrow(() -> new BadCredentialsExceptionCustom("Tên đăng nhập hoặc mật khẩu không chính xác"));
 
         // check active
         if (!Boolean.TRUE.equals(user.getIsActive())) {
 
-            throw new AccessDeniedExceptionCustom(
-                    "Tài khoản đã bị khóa"
-            );
+            throw new AccessDeniedExceptionCustom("Tài khoản đã bị khóa");
         }
 
         Authentication authentication;
 
         try {
 
-            authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            req.getUsername(),
-                            req.getPassword()
-                    )
-            );
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
 
         } catch (Exception e) {
 
-            throw new BadCredentialsExceptionCustom(
-                    "Username hoặc mật khẩu không đúng"
-            );
+            throw new BadCredentialsExceptionCustom("Tên đăng nhập hoặc mật khẩu không chính xác");
         }
 
-        String accessToken = jwtProvider.generateAccessToken(
-                (UserDetails) authentication.getPrincipal()
-        );
+        String accessToken = jwtProvider.generateAccessToken((UserDetails) authentication.getPrincipal());
 
-        String refreshToken = jwtProvider.generateRefreshToken(
-                (UserDetails) authentication.getPrincipal()
-        );
+        String refreshToken = jwtProvider.generateRefreshToken((UserDetails) authentication.getPrincipal());
 
-        return JwtResponse.builder()
-                .username(user.getUsername())
-                .role(user.getRole())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .expirationDate(
-                        new Date(
-                                System.currentTimeMillis()
-                                        + 15 * 60 * 1000
-                        )
-                )
-                .build();
+        return JwtResponse.builder().username(user.getUsername()).role(user.getRole()).accessToken(accessToken).refreshToken(refreshToken).expirationDate(new Date(System.currentTimeMillis() + 15 * 60 * 1000)).build();
     }
 
     /**
@@ -223,45 +164,25 @@ public class AuthServiceImpl implements AuthService {
      * POST /api/auth/verify
      */
     @Override
-    public VerifyTokenResponse verifyToken(
-            VerifyTokenRequest req
-    ) {
+    public VerifyTokenResponse verifyToken(VerifyTokenRequest req) {
 
-        if (req.getToken() == null
-                || req.getToken().isBlank()) {
+        if (req.getToken() == null || req.getToken().isBlank()) {
 
-            throw new JwtExceptionCustom(
-                    "Token không được để trống"
-            );
+            throw new JwtExceptionCustom("Token không được để trống");
         }
 
         jwtProvider.validateToken(req.getToken());
 
-        String username =
-                jwtProvider.getUsernameFromToken(
-                        req.getToken()
-                );
+        String username = jwtProvider.getUsernameFromToken(req.getToken());
 
-        User user = userRepository.findUserByUsername(
-                        username
-                )
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Không tìm thấy người dùng"
-                        ));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         if (!Boolean.TRUE.equals(user.getIsActive())) {
 
-            throw new AccessDeniedExceptionCustom(
-                    "Tài khoản đã bị khóa"
-            );
+            throw new AccessDeniedExceptionCustom("Tài khoản đã bị khóa");
         }
 
-        return VerifyTokenResponse.builder()
-                .valid(true)
-                .username(user.getUsername())
-                .role(user.getRole())
-                .build();
+        return VerifyTokenResponse.builder().valid(true).username(user.getUsername()).role(user.getRole()).build();
     }
 
     /**
@@ -273,24 +194,12 @@ public class AuthServiceImpl implements AuthService {
     @PreAuthorize("hasAnyRole('ADMIN','MENTOR','STUDENT')")
     public UserResponse getCurrentUser() {
 
-        Authentication authentication =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String username = authentication.getName();
 
-        User user = userRepository.findUserByUsername(
-                        username
-                )
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Không tìm thấy người dùng"
-                        ));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
-        return modelMapper.map(
-                user,
-                UserResponse.class
-        );
+        return modelMapper.map(user, UserResponse.class);
     }
 }

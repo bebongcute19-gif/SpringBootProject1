@@ -47,80 +47,43 @@ public class UserServiceImpl implements UserService {
             users = userRepository.findAll();
         }
 
-        return users.stream()
-                .map(user ->
-                        modelMapper.map(
-                                user,
-                                UserResponse.class
-                        )
-                )
-                .toList();
+        return users.stream().map(user -> modelMapper.map(user, UserResponse.class)).toList();
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserById(Integer userId) {
 
-        User user = userRepository.getUserById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Không tìm thấy người dùng"
-                        ));
+        User user = userRepository.getUserById(userId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
-        return modelMapper.map(
-                user,
-                UserResponse.class
-        );
+        return modelMapper.map(user, UserResponse.class);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public UserResponse updateUser(
-            Integer userId,
-            UpdateUserRequest req
-    ) {
+    public UserResponse updateUser(Integer userId, UpdateUserRequest req) {
 
-        User user = userRepository.getUserById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Không tìm thấy người dùng"
-                        ));
+        User user = userRepository.getUserById(userId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
-        if (
-                !user.getEmail().equals(req.getEmail())
-                        &&
-                        userRepository.existsByEmail(req.getEmail())
-        ) {
+        if (!user.getEmail().equals(req.getEmail()) && userRepository.existsByEmail(req.getEmail())) {
 
-            throw new DuplicateResourceException(
-                    "Email đã tồn tại"
-            );
+            throw new DuplicateResourceException("Email đã tồn tại");
         }
 
         user.setFullName(req.getFullName());
 
         user.setEmail(req.getEmail());
 
-        return modelMapper.map(
-                userRepository.save(user),
-                UserResponse.class
-        );
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public String updateUserPassword(
-            Integer userId,
-            UpdatePasswordRequest req
-    ) {
+    public String updateUserPassword(Integer userId, UpdatePasswordRequest req) {
 
         User targetUser = getTargetUser(userId);
 
-        targetUser.setPasswordHash(
-                passwordEncoder.encode(
-                        req.getNewPassword()
-                )
-        );
+        targetUser.setPasswordHash(passwordEncoder.encode(req.getNewPassword()));
 
         userRepository.save(targetUser);
 
@@ -129,10 +92,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public String updateUserStatus(
-            Integer userId,
-            Boolean status
-    ) {
+    public String updateUserStatus(Integer userId, Boolean status) {
 
         User targetUser = getTargetUser(userId);
 
@@ -140,17 +100,12 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(targetUser);
 
-        return status
-                ? "Mở khóa tài khoản thành công"
-                : "Khóa tài khoản thành công";
+        return status ? "Mở khóa tài khoản thành công" : "Khóa tài khoản thành công";
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public String updateUserRole(
-            Integer userId,
-            Role role
-    ) {
+    public String updateUserRole(Integer userId, Role role) {
 
         User targetUser = getTargetUser(userId);
 
@@ -158,7 +113,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(targetUser);
 
-        return "Cập nhật role thành công";
+        return "Cập nhật vai trò người dùng thành công";
     }
 
     @Override
@@ -177,74 +132,44 @@ public class UserServiceImpl implements UserService {
      */
     private User getTargetUser(Integer userId) {
 
-        User targetUser = userRepository.getUserById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Không tìm thấy người dùng"
-                        ));
+        User targetUser = userRepository.getUserById(userId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
-        Authentication authentication =
-                SecurityContextHolder
-                        .getContext()
-                        .getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        CustomUserDetails currentUser =
-                (CustomUserDetails)
-                        authentication.getPrincipal();
+        CustomUserDetails currentUser = (CustomUserDetails) authentication.getPrincipal();
 
-        User actor = userRepository.findUserByUsername(
-                        currentUser.getUsername()
-                )
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Không tìm thấy ADMIN"
-                        ));
+        User actor = userRepository.findUserByUsername(currentUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ADMIN"));
 
         /**
          * ADMIN không được thao tác ADMIN khác
          */
-        if (
-                actor.getRole() == Role.ADMIN
-                        &&
-                        targetUser.getRole() == Role.ADMIN
-                        &&
-                        !actor.getId().equals(
-                                targetUser.getId()
-                        )
-        ) {
+        if (actor.getRole() == Role.ADMIN && targetUser.getRole() == Role.ADMIN && !actor.getId().equals(targetUser.getId())) {
 
-            throw new AccessDeniedExceptionCustom(
-                    "ADMIN không thể thao tác ADMIN khác"
-            );
+            throw new AccessDeniedExceptionCustom("ADMIN không thể thao tác với ADMIN khác");
         }
 
         return targetUser;
     }
+
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse createUser(UserCreateDTO req) {
 
         if (userRepository.existsByUsername(req.getUsername())) {
 
-            throw new DuplicateResourceException(
-                    "Username đã tồn tại"
-            );
+            throw new DuplicateResourceException("Tên đăng nhập đã tồn tại");
         }
 
         if (userRepository.existsByEmail(req.getEmail())) {
 
-            throw new DuplicateResourceException(
-                    "Email đã tồn tại"
-            );
+            throw new DuplicateResourceException("Email đã tồn tại");
         }
 
         User user = new User();
 
         user.setUsername(req.getUsername());
 
-        user.setPasswordHash(
-                passwordEncoder.encode(req.getPassword())
-        );
+        user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
 
         user.setFullName(req.getFullName());
 
@@ -254,9 +179,6 @@ public class UserServiceImpl implements UserService {
 
         user.setIsActive(true);
 
-        return modelMapper.map(
-                userRepository.save(user),
-                UserResponse.class
-        );
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 }

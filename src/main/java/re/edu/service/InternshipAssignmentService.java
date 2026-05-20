@@ -9,20 +9,11 @@ import java.util.List;
 
 public interface InternshipAssignmentService {
 
-    List<InternshipAssignmentResponse>
-    getAllAssignments();
+    List<InternshipAssignmentResponse> getAllAssignments();
 
-    InternshipAssignmentResponse
-    getAssignmentById(Integer assignmentId);
+    InternshipAssignmentResponse getAssignmentById(Integer assignmentId);
 
-    InternshipAssignmentResponse
-    createAssignment(
-            InternshipAssignmentRequest request
-    );
+    InternshipAssignmentResponse createAssignment(InternshipAssignmentRequest request);
 
-    InternshipAssignmentResponse
-    updateAssignmentStatus(
-            Integer assignmentId,
-            UpdateAssignmentStatusRequest request
-    );
+    InternshipAssignmentResponse updateAssignmentStatus(Integer assignmentId, UpdateAssignmentStatusRequest request);
 }

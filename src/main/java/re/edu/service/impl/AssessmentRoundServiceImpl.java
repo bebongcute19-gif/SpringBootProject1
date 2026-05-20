@@ -16,273 +16,163 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AssessmentRoundServiceImpl
-        implements AssessmentRoundService {
+public class AssessmentRoundServiceImpl implements AssessmentRoundService {
 
-    private final AssessmentRoundRepository
-            assessmentRoundRepository;
+    private final AssessmentRoundRepository assessmentRoundRepository;
 
-    private final InternshipPhaseRepository
-            internshipPhaseRepository;
+    private final InternshipPhaseRepository internshipPhaseRepository;
 
     @Override
-    public List<AssessmentRoundResponse>
-    getAllRounds(Integer phaseId) {
+    public List<AssessmentRoundResponse> getAllRounds(Integer phaseId) {
 
         List<AssessmentRound> rounds;
 
         if (phaseId != null) {
 
-            rounds = assessmentRoundRepository
-                    .findByPhase_PhaseId(phaseId);
+            rounds = assessmentRoundRepository.findByPhase_PhaseId(phaseId);
 
         } else {
 
             rounds = assessmentRoundRepository.findAll();
         }
 
-        return rounds.stream()
-                .map(this::toResponse)
-                .toList();
+        return rounds.stream().map(this::toResponse).toList();
     }
 
     @Override
-    public AssessmentRoundResponse
-    getRoundById(Integer roundId) {
+    public AssessmentRoundResponse getRoundById(Integer roundId) {
 
-        AssessmentRound round =
-                assessmentRoundRepository
-                        .findById(roundId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assessment round not found"
-                                )
-                        );
+        AssessmentRound round = assessmentRoundRepository.findById(roundId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đánh giá"));
 
         return toResponse(round);
     }
 
     @Override
-    public AssessmentRoundResponse
-    createRound(
-            AssessmentRoundRequest request
-    ) {
+    public AssessmentRoundResponse createRound(AssessmentRoundRequest request) {
 
         validateRequest(request);
 
-        InternshipPhase phase =
-                internshipPhaseRepository
-                        .findById(request.getPhaseId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Internship phase not found"
-                                )
-                        );
+        InternshipPhase phase = internshipPhaseRepository.findById(request.getPhaseId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
 
-        AssessmentRound round =
-                new AssessmentRound();
+        AssessmentRound round = new AssessmentRound();
 
         round.setPhase(phase);
 
-        round.setRoundName(
-                request.getRoundName()
-        );
+        round.setRoundName(request.getRoundName());
 
-        round.setStartDate(
-                request.getStartDate()
-        );
+        round.setStartDate(request.getStartDate());
 
-        round.setEndDate(
-                request.getEndDate()
-        );
+        round.setEndDate(request.getEndDate());
 
-        round.setDescription(
-                request.getDescription()
-        );
+        round.setDescription(request.getDescription());
 
-        round.setIsActive(
-                request.getIsActive()
-        );
+        round.setIsActive(request.getIsActive());
 
         round.setCreatedAt(LocalDateTime.now());
 
         round.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                assessmentRoundRepository
-                        .save(round)
-        );
+        return toResponse(assessmentRoundRepository.save(round));
     }
 
     @Override
-    public AssessmentRoundResponse
-    updateRound(
-            Integer roundId,
-            AssessmentRoundRequest request
-    ) {
+    public AssessmentRoundResponse updateRound(Integer roundId, AssessmentRoundRequest request) {
 
-        AssessmentRound round =
-                assessmentRoundRepository
-                        .findById(roundId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assessment round not found"
-                                )
-                        );
+        AssessmentRound round = assessmentRoundRepository.findById(roundId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đánh giá"));
 
         if (request.getPhaseId() != null) {
 
-            InternshipPhase phase =
-                    internshipPhaseRepository
-                            .findById(
-                                    request.getPhaseId()
-                            )
-                            .orElseThrow(() ->
-                                    new ResourceNotFoundException(
-                                            "Internship phase not found"
-                                    )
-                            );
+            InternshipPhase phase = internshipPhaseRepository.findById(request.getPhaseId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
 
             round.setPhase(phase);
         }
 
-        if (request.getRoundName() != null
-                && !request.getRoundName().isBlank()) {
+        if (request.getRoundName() != null && !request.getRoundName().isBlank()) {
 
-            round.setRoundName(
-                    request.getRoundName()
-            );
+            round.setRoundName(request.getRoundName());
         }
 
         if (request.getStartDate() != null) {
 
-            round.setStartDate(
-                    request.getStartDate()
-            );
+            round.setStartDate(request.getStartDate());
         }
 
         if (request.getEndDate() != null) {
 
-            round.setEndDate(
-                    request.getEndDate()
-            );
+            round.setEndDate(request.getEndDate());
         }
 
         if (request.getDescription() != null) {
 
-            round.setDescription(
-                    request.getDescription()
-            );
+            round.setDescription(request.getDescription());
         }
 
         if (request.getIsActive() != null) {
 
-            round.setIsActive(
-                    request.getIsActive()
-            );
+            round.setIsActive(request.getIsActive());
         }
 
         round.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                assessmentRoundRepository
-                        .save(round)
-        );
+        return toResponse(assessmentRoundRepository.save(round));
     }
 
     @Override
     public void deleteRound(Integer roundId) {
 
-        AssessmentRound round =
-                assessmentRoundRepository
-                        .findById(roundId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assessment round not found"
-                                )
-                        );
+        AssessmentRound round = assessmentRoundRepository.findById(roundId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đánh giá"));
 
         assessmentRoundRepository.delete(round);
     }
 
-    private AssessmentRoundResponse
-    toResponse(AssessmentRound round) {
+    private AssessmentRoundResponse toResponse(AssessmentRound round) {
 
-        AssessmentRoundResponse response =
-                new AssessmentRoundResponse();
+        AssessmentRoundResponse response = new AssessmentRoundResponse();
 
         response.setId(round.getId());
 
-        response.setPhaseId(
-                round.getPhase().getPhaseId()
-        );
+        response.setPhaseId(round.getPhase().getPhaseId());
 
-        response.setPhaseName(
-                round.getPhase().getPhaseName()
-        );
+        response.setPhaseName(round.getPhase().getPhaseName());
 
-        response.setRoundName(
-                round.getRoundName()
-        );
+        response.setRoundName(round.getRoundName());
 
-        response.setStartDate(
-                round.getStartDate()
-        );
+        response.setStartDate(round.getStartDate());
 
-        response.setEndDate(
-                round.getEndDate()
-        );
+        response.setEndDate(round.getEndDate());
 
-        response.setDescription(
-                round.getDescription()
-        );
+        response.setDescription(round.getDescription());
 
-        response.setIsActive(
-                round.getIsActive()
-        );
+        response.setIsActive(round.getIsActive());
 
         return response;
     }
 
-    private void validateRequest(
-            AssessmentRoundRequest request
-    ) {
+    private void validateRequest(AssessmentRoundRequest request) {
 
         if (request.getPhaseId() == null) {
 
-            throw new IllegalArgumentException(
-                    "Phase id is required"
-            );
+            throw new IllegalArgumentException("Mã giai đoạn thực tập không được để trống");
         }
 
-        if (request.getRoundName() == null
-                || request.getRoundName().isBlank()) {
+        if (request.getRoundName() == null || request.getRoundName().isBlank()) {
 
-            throw new IllegalArgumentException(
-                    "Round name is required"
-            );
+            throw new IllegalArgumentException("Tên đợt đánh giá không được để trống");
         }
 
         if (request.getStartDate() == null) {
 
-            throw new IllegalArgumentException(
-                    "Start date is required"
-            );
+            throw new IllegalArgumentException("Ngày bắt đầu không được để trống");
         }
 
         if (request.getEndDate() == null) {
 
-            throw new IllegalArgumentException(
-                    "End date is required"
-            );
+            throw new IllegalArgumentException("Ngày kết thúc không được để trống");
         }
 
-        if (request.getEndDate()
-                .isBefore(request.getStartDate())) {
+        if (request.getEndDate().isBefore(request.getStartDate())) {
 
-            throw new IllegalArgumentException(
-                    "End date must be after start date"
-            );
+            throw new IllegalArgumentException("Ngày kết thúc phải sau ngày bắt đầu");
         }
     }
 }

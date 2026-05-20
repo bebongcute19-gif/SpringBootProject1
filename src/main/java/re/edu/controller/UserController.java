@@ -25,20 +25,9 @@ public class UserController {
      * GET /api/users
      */
     @GetMapping
-    public ResponseEntity<ApiResponse>
-    getAllUsers(
-            @RequestParam(required = false)
-            Role role
-    ) {
+    public ResponseEntity<ApiResponse> getAllUsers(@RequestParam(required = false) Role role) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.getAllUsers(role),
-                        null,
-                        200,
-                        "Get user list successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.getAllUsers(role), null, 200, "Lấy danh sách người dùng thành công"));
     }
 
     /**
@@ -46,19 +35,9 @@ public class UserController {
      * GET /api/users/{userId}
      */
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiResponse>
-    getUserById(
-            @PathVariable Integer userId
-    ) {
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable Integer userId) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.getUserById(userId),
-                        null,
-                        200,
-                        "Get user successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.getUserById(userId), null, 200, "Lấy thông tin người dùng thành công"));
     }
 
     /**
@@ -66,23 +45,9 @@ public class UserController {
      * POST /api/users
      */
     @PostMapping
-    public ResponseEntity<ApiResponse>
-    createUser(
-            @Valid
-            @RequestBody
-            UserCreateDTO req
-    ) {
+    public ResponseEntity<ApiResponse> createUser(@Valid @RequestBody UserCreateDTO req) {
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(
-                        MapToAPIResponse.mapTo(
-                                userService.createUser(req),
-                                null,
-                                201,
-                                "Create user successfully"
-                        )
-                );
+        return ResponseEntity.status(HttpStatus.CREATED).body(MapToAPIResponse.mapTo(userService.createUser(req), null, 201, "Tạo người dùng thành công"));
     }
 
     /**
@@ -90,25 +55,9 @@ public class UserController {
      * PUT /api/users/{userId}
      */
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse>
-    updateUser(
-            @PathVariable Integer userId,
-            @Valid
-            @RequestBody
-            UpdateUserRequest req
-    ) {
+    public ResponseEntity<ApiResponse> updateUser(@PathVariable Integer userId, @Valid @RequestBody UpdateUserRequest req) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.updateUser(
-                                userId,
-                                req
-                        ),
-                        null,
-                        200,
-                        "Update user successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.updateUser(userId, req), null, 200, "Cập nhật người dùng thành công"));
     }
 
     /**
@@ -116,24 +65,9 @@ public class UserController {
      * PUT /api/users/{userId}/password
      */
     @PutMapping("/{userId}/password")
-    public ResponseEntity<ApiResponse>
-    updatePassword(
-            @PathVariable Integer userId,
-            @RequestBody
-            UpdatePasswordRequest req
-    ) {
+    public ResponseEntity<ApiResponse> updatePassword(@PathVariable Integer userId, @RequestBody UpdatePasswordRequest req) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.updateUserPassword(
-                                userId,
-                                req
-                        ),
-                        null,
-                        200,
-                        "Update password successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.updateUserPassword(userId, req), null, 200, "Cập nhật mật khẩu thành công"));
     }
 
     /**
@@ -141,23 +75,9 @@ public class UserController {
      * PUT /api/users/{userId}/status
      */
     @PutMapping("/{userId}/status")
-    public ResponseEntity<ApiResponse>
-    updateStatus(
-            @PathVariable Integer userId,
-            @RequestParam Boolean status
-    ) {
+    public ResponseEntity<ApiResponse> updateStatus(@PathVariable Integer userId, @RequestParam Boolean status) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.updateUserStatus(
-                                userId,
-                                status
-                        ),
-                        null,
-                        200,
-                        "Update user status successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.updateUserStatus(userId, status), null, 200, "Cập nhật trạng thái người dùng thành công"));
     }
 
     /**
@@ -165,23 +85,9 @@ public class UserController {
      * PUT /api/users/{userId}/role
      */
     @PutMapping("/{userId}/role")
-    public ResponseEntity<ApiResponse>
-    updateRole(
-            @PathVariable Integer userId,
-            @RequestParam Role role
-    ) {
+    public ResponseEntity<ApiResponse> updateRole(@PathVariable Integer userId, @RequestParam Role role) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.updateUserRole(
-                                userId,
-                                role
-                        ),
-                        null,
-                        200,
-                        "Update user role successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.updateUserRole(userId, role), null, 200, "Cập nhật vai trò người dùng thành công"));
     }
 
     /**
@@ -189,18 +95,8 @@ public class UserController {
      * DELETE /api/users/{userId}
      */
     @DeleteMapping("/{userId}")
-    public ResponseEntity<ApiResponse>
-    deleteUser(
-            @PathVariable Integer userId
-    ) {
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer userId) {
 
-        return ResponseEntity.ok(
-                MapToAPIResponse.mapTo(
-                        userService.deleteUser(userId),
-                        null,
-                        200,
-                        "Delete user successfully"
-                )
-        );
+        return ResponseEntity.ok(MapToAPIResponse.mapTo(userService.deleteUser(userId), null, 200, "Xóa người dùng thành công"));
     }
 }

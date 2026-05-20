@@ -12,14 +12,14 @@ import java.math.BigDecimal;
 @Setter
 public class AssessmentResultUpdateRequest {
 
-    @NotNull(message = "Score is required")
+    @NotNull(message = "Điểm số không được để trống")
     @DecimalMin(
             value = "0.0",
-            message = "Score must be >= 0"
+            message = "Điểm số phải lớn hơn hoặc bằng 0"
     )
     @DecimalMax(
             value = "10.0",
-            message = "Score must be <= 10"
+            message = "Điểm số phải nhỏ hơn hoặc bằng 10"
     )
     private BigDecimal score;
 

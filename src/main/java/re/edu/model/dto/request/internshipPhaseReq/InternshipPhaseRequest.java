@@ -11,14 +11,14 @@ import java.time.LocalDate;
 @Setter
 public class InternshipPhaseRequest {
 
-    @NotBlank(message = "Phase name is required")
+    @NotBlank(message = "Tên giai đoạn thực tập không được để trống")
     private String phaseName;
 
     private String description;
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "Ngày bắt đầu không được để trống")
     private LocalDate startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "Ngày kết thúc không được để trống")
     private LocalDate endDate;
 }

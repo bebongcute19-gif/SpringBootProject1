@@ -35,7 +35,7 @@ public class RoundCriteriaController {
                                 .getAllRoundCriteria(roundId),
                         null,
                         200,
-                        "Get round criteria successfully"
+                        "Lấy danh sách tiêu chí của đợt đánh giá thành công"
                 )
         );
     }
@@ -56,7 +56,7 @@ public class RoundCriteriaController {
                                 .getRoundCriteriaById(id),
                         null,
                         200,
-                        "Get round criteria successfully"
+                        "Lấy thông tin tiêu chí của đợt đánh giá thành công"
                 )
         );
     }
@@ -80,7 +80,7 @@ public class RoundCriteriaController {
                                         ),
                                 null,
                                 201,
-                                "Create round criteria successfully"
+                                "Tạo tiêu chí cho đợt đánh giá thành công"
                         )
                 );
     }
@@ -104,7 +104,7 @@ public class RoundCriteriaController {
                                 ),
                         null,
                         200,
-                        "Update round criteria successfully"
+                        "Cập nhật tiêu chí của đợt đánh giá thành công"
                 )
         );
     }
@@ -125,7 +125,7 @@ public class RoundCriteriaController {
                         null,
                         null,
                         200,
-                        "Delete round criteria successfully"
+                        "Xóa tiêu chí của đợt đánh giá thành công"
                 )
         );
     }

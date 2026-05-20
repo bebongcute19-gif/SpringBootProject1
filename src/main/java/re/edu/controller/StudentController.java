@@ -29,7 +29,7 @@ public class StudentController {
                         studentService.getAllStudents(),
                         null,
                         200,
-                        "Get student list successfully"
+                        "Lấy danh sách sinh viên thành công"
                 )
         );
     }
@@ -47,7 +47,7 @@ public class StudentController {
                         studentService.getStudentById(studentId),
                         null,
                         200,
-                        "Get student successfully"
+                        "Lấy thông tin sinh viên thành công"
                 )
         );
     }
@@ -70,7 +70,7 @@ public class StudentController {
                                         .createStudent(request),
                                 null,
                                 201,
-                                "Create student successfully"
+                                "Tạo sinh viên thành công"
                         )
                 );
     }
@@ -94,7 +94,7 @@ public class StudentController {
                         ),
                         null,
                         200,
-                        "Update student successfully"
+                        "Cập nhật sinh viên thành công"
                 )
         );
     }

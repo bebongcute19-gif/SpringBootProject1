@@ -35,7 +35,7 @@ public class AssessmentRoundController {
                                 .getAllRounds(phaseId),
                         null,
                         200,
-                        "Get assessment rounds successfully"
+                        "Lấy danh sách đợt đánh giá thành công"
                 )
         );
     }
@@ -56,7 +56,7 @@ public class AssessmentRoundController {
                                 .getRoundById(roundId),
                         null,
                         200,
-                        "Get assessment round successfully"
+                        "Lấy thông tin đợt đánh giá thành công"
                 )
         );
     }
@@ -78,7 +78,7 @@ public class AssessmentRoundController {
                                         .createRound(request),
                                 null,
                                 201,
-                                "Create assessment round successfully"
+                                "Tạo đợt đánh giá thành công"
                         )
                 );
     }
@@ -102,7 +102,7 @@ public class AssessmentRoundController {
                                 ),
                         null,
                         200,
-                        "Update assessment round successfully"
+                        "Cập nhật đợt đánh giá thành công"
                 )
         );
     }
@@ -122,7 +122,7 @@ public class AssessmentRoundController {
                         null,
                         null,
                         200,
-                        "Delete assessment round successfully"
+                        "Xóa đợt đánh giá thành công"
                 )
         );
     }

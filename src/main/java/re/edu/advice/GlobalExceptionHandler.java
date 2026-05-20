@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
                         null,
                         res,
                         405,
-                        "Method Not Allowed"
+                        "Phương thức không được hỗ trợ"
                 ),
                 HttpStatus.METHOD_NOT_ALLOWED
         );
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> res = new HashMap<>();
 
         res.put(
-                "Lỗi Token",
+                "Lỗi token",
                 e.getMessage()
         );
 
@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
                         null,
                         res,
                         401,
-                        "Lỗi xác thực Token"
+                        "Xác thực token thất bại"
                 ),
                 HttpStatus.UNAUTHORIZED
         );
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
                         null,
                         res,
                         401,
-                        "Lỗi đăng nhập không thành công"
+                        "Đăng nhập thất bại"
                 ),
                 HttpStatus.UNAUTHORIZED
         );
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
                         null,
                         res,
                         403,
-                        "Truy cập bị từ chối"
+                        "Bạn không có quyền truy cập"
                 ),
                 HttpStatus.FORBIDDEN
         );
@@ -133,7 +133,7 @@ public class GlobalExceptionHandler {
                         null,
                         errors,
                         400,
-                        "Lấy dữ liệu không thành công"
+                        "Dữ liệu gửi lên không hợp lệ"
                 ),
                 HttpStatus.BAD_REQUEST
         );
@@ -157,7 +157,7 @@ public class GlobalExceptionHandler {
                         null,
                         res,
                         409,
-                        "Lỗi dữ liệu trùng lặp"
+                        "Dữ liệu đã tồn tại"
                 ),
                 HttpStatus.CONFLICT
         );
@@ -208,7 +208,7 @@ public class GlobalExceptionHandler {
             res.put(
                     "Lỗi dữ liệu",
                     fieldName
-                            + " không cần thiết trong request"
+                            + " không được phép xuất hiện trong request"
             );
         }
 
@@ -217,7 +217,7 @@ public class GlobalExceptionHandler {
 
             res.put(
                     "Lỗi dữ liệu",
-                    "Giá trị truyền vào phải là true hoặc false"
+                    "Giá trị phải là true hoặc false"
             );
         }
 
@@ -226,7 +226,7 @@ public class GlobalExceptionHandler {
 
             res.put(
                     "Lỗi dữ liệu",
-                    "Role không hợp lệ"
+                    "Vai trò không hợp lệ"
             );
         }
 
@@ -237,7 +237,7 @@ public class GlobalExceptionHandler {
 
             res.put(
                     "Lỗi dữ liệu",
-                    "Assignment status không hợp lệ"
+                    "Trạng thái phân công không hợp lệ"
             );
         }
 
@@ -246,7 +246,7 @@ public class GlobalExceptionHandler {
 
             res.put(
                     "Lỗi dữ liệu",
-                    "Dữ liệu gửi lên không hợp lệ hoặc bị bỏ trống"
+                    "Dữ liệu gửi lên không hợp lệ hoặc bị thiếu"
             );
         }
 
@@ -260,6 +260,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
     }
+
     // ================= ILLEGAL ARGUMENT =================
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgument(
@@ -293,7 +294,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> res = new HashMap<>();
 
         res.put(
-                "Lỗi không tìm thấy",
+                "Không tìm thấy",
                 e.getMessage()
         );
 
@@ -302,7 +303,7 @@ public class GlobalExceptionHandler {
                         null,
                         res,
                         404,
-                        "Không tìm thấy tài nguyên"
+                        "Không tìm thấy dữ liệu"
                 ),
                 HttpStatus.NOT_FOUND
         );
@@ -320,7 +321,7 @@ public class GlobalExceptionHandler {
                 ex.getMostSpecificCause().getMessage();
 
         String message =
-                "Lỗi ràng buộc dữ liệu";
+                "Vi phạm ràng buộc dữ liệu";
 
         // ===== INTERNSHIP PHASE DUPLICATE =====
         if (
@@ -330,7 +331,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Tên giai đoạn đã tồn tại";
+                    "Tên giai đoạn thực tập đã tồn tại";
         }
 
         // ===== INTERNSHIP PHASE FOREIGN KEY =====
@@ -352,7 +353,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Sequence phase_id bị lệch với database";
+                    "Sequence phase_id không đồng bộ với database";
         }
 
         // ===== EVALUATION CRITERIA DUPLICATE =====
@@ -374,7 +375,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Sequence criterion_id bị lệch với database";
+                    "Sequence criterion_id không đồng bộ với database";
         }
 
         // ===== ASSESSMENT ROUND SEQUENCE =====
@@ -385,7 +386,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Sequence assessment_round_id bị lệch với database";
+                    "Sequence assessment_round_id không đồng bộ với database";
         }
 
         // ===== ROUND CRITERIA DUPLICATE =====
@@ -407,7 +408,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Sequence round_criterion_id bị lệch với database";
+                    "Sequence round_criterion_id không đồng bộ với database";
         }
 
         // ===== INTERNSHIP ASSIGNMENT DUPLICATE =====
@@ -418,7 +419,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Student đã được phân công trong giai đoạn này";
+                    "Sinh viên đã được phân công trong giai đoạn này";
         }
 
         // ===== INTERNSHIP ASSIGNMENT SEQUENCE =====
@@ -429,7 +430,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Sequence assignment_id bị lệch với database";
+                    "Sequence assignment_id không đồng bộ với database";
         }
 
         // ===== NOT NULL =====
@@ -440,7 +441,7 @@ public class GlobalExceptionHandler {
         ) {
 
             message =
-                    "Dữ liệu bắt buộc không được để trống";
+                    "Không được để trống dữ liệu bắt buộc";
         }
 
         res.put(
@@ -462,5 +463,4 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT
         );
     }
-
 }

@@ -37,7 +37,7 @@ public class AssessmentResultController {
                                 ),
                         null,
                         200,
-                        "Get assessment results successfully"
+                        "Lấy danh sách kết quả đánh giá thành công"
                 )
         );
     }
@@ -61,7 +61,7 @@ public class AssessmentResultController {
                                         ),
                                 null,
                                 201,
-                                "Create assessment result successfully"
+                                "Tạo kết quả đánh giá thành công"
                         )
                 );
     }
@@ -85,7 +85,7 @@ public class AssessmentResultController {
                                 ),
                         null,
                         200,
-                        "Update assessment result successfully"
+                        "Cập nhật kết quả đánh giá thành công"
                 )
         );
     }

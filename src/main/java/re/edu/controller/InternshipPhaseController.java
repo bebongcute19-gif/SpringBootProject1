@@ -33,7 +33,7 @@ public class InternshipPhaseController {
                                 .getAllPhases(),
                         null,
                         200,
-                        "Get internship phases successfully"
+                        "Lấy danh sách giai đoạn thực tập thành công"
                 )
         );
     }
@@ -54,7 +54,7 @@ public class InternshipPhaseController {
                                 .getPhaseById(phaseId),
                         null,
                         200,
-                        "Get internship phase successfully"
+                        "Lấy thông tin giai đoạn thực tập thành công"
                 )
         );
     }
@@ -77,7 +77,7 @@ public class InternshipPhaseController {
                                         .createPhase(request),
                                 null,
                                 201,
-                                "Create internship phase successfully"
+                                "Tạo giai đoạn thực tập thành công"
                         )
                 );
     }
@@ -102,7 +102,7 @@ public class InternshipPhaseController {
                                 ),
                         null,
                         200,
-                        "Update internship phase successfully"
+                        "Cập nhật giai đoạn thực tập thành công"
                 )
         );
     }
@@ -122,7 +122,7 @@ public class InternshipPhaseController {
                         null,
                         null,
                         200,
-                        "Delete internship phase successfully"
+                        "Xóa giai đoạn thực tập thành công"
                 )
         );
     }

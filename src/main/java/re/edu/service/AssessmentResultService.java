@@ -9,19 +9,11 @@ import java.util.List;
 public interface AssessmentResultService {
 
     // 42. GET ALL
-    List<AssessmentResultResponse>
-    getAllResults(Integer assignmentId);
+    List<AssessmentResultResponse> getAllResults(Integer assignmentId);
 
     // 43. CREATE
-    AssessmentResultResponse
-    createResult(
-            AssessmentResultRequest request
-    );
+    AssessmentResultResponse createResult(AssessmentResultRequest request);
 
     // 44. UPDATE
-    AssessmentResultResponse
-    updateResult(
-            Integer resultId,
-            AssessmentResultUpdateRequest request
-    );
+    AssessmentResultResponse updateResult(Integer resultId, AssessmentResultUpdateRequest request);
 }

@@ -22,98 +22,49 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class InternshipAssignmentServiceImpl
-        implements InternshipAssignmentService {
+public class InternshipAssignmentServiceImpl implements InternshipAssignmentService {
 
-    private final InternshipAssignmentRepository
-            assignmentRepository;
+    private final InternshipAssignmentRepository assignmentRepository;
 
-    private final StudentRepository
-            studentRepository;
+    private final StudentRepository studentRepository;
 
-    private final MentorRepository
-            mentorRepository;
+    private final MentorRepository mentorRepository;
 
-    private final InternshipPhaseRepository
-            phaseRepository;
+    private final InternshipPhaseRepository phaseRepository;
 
     @Override
-    public List<InternshipAssignmentResponse>
-    getAllAssignments() {
+    public List<InternshipAssignmentResponse> getAllAssignments() {
 
-        return assignmentRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        return assignmentRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     @Override
-    public InternshipAssignmentResponse
-    getAssignmentById(Integer assignmentId) {
+    public InternshipAssignmentResponse getAssignmentById(Integer assignmentId) {
 
-        InternshipAssignment assignment =
-                assignmentRepository
-                        .findById(assignmentId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assignment not found"
-                                )
-                        );
+        InternshipAssignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công thực tập"));
 
         return toResponse(assignment);
     }
 
     @Override
-    public InternshipAssignmentResponse
-    createAssignment(
-            InternshipAssignmentRequest request
-    ) {
+    public InternshipAssignmentResponse createAssignment(InternshipAssignmentRequest request) {
 
         validateRequest(request);
 
-        boolean exists =
-                assignmentRepository
-                        .findByStudent_IdAndPhase_PhaseId(
-                                request.getStudentId(),
-                                request.getPhaseId()
-                        )
-                        .isPresent();
+        boolean exists = assignmentRepository.findByStudent_IdAndPhase_PhaseId(request.getStudentId(), request.getPhaseId()).isPresent();
+
         if (exists) {
 
-            throw new IllegalArgumentException(
-                    "Student already assigned in this phase"
-            );
+            throw new IllegalArgumentException("Sinh viên đã được phân công trong giai đoạn này");
         }
 
-        Student student =
-                studentRepository
-                        .findById(request.getStudentId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Student not found"
-                                )
-                        );
+        Student student = studentRepository.findById(request.getStudentId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
 
-        Mentor mentor =
-                mentorRepository
-                        .findById(request.getMentorId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Mentor not found"
-                                )
-                        );
+        Mentor mentor = mentorRepository.findById(request.getMentorId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên hướng dẫn"));
 
-        InternshipPhase phase =
-                phaseRepository
-                        .findById(request.getPhaseId())
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Internship phase not found"
-                                )
-                        );
+        InternshipPhase phase = phaseRepository.findById(request.getPhaseId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
 
-        InternshipAssignment assignment =
-                new InternshipAssignment();
+        InternshipAssignment assignment = new InternshipAssignment();
 
         assignment.setStudent(student);
 
@@ -121,139 +72,74 @@ public class InternshipAssignmentServiceImpl
 
         assignment.setPhase(phase);
 
-        assignment.setAssignedDate(
-                LocalDateTime.now()
-        );
+        assignment.setAssignedDate(LocalDateTime.now());
 
-        assignment.setStatus(
-                AssignmentStatus.PENDING
-        );
+        assignment.setStatus(AssignmentStatus.PENDING);
 
-        assignment.setCreatedAt(
-                LocalDateTime.now()
-        );
+        assignment.setCreatedAt(LocalDateTime.now());
 
-        assignment.setUpdatedAt(
-                LocalDateTime.now()
-        );
+        assignment.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                assignmentRepository.save(assignment)
-        );
+        return toResponse(assignmentRepository.save(assignment));
     }
 
     @Override
-    public InternshipAssignmentResponse
-    updateAssignmentStatus(
-            Integer assignmentId,
-            UpdateAssignmentStatusRequest request
-    ) {
+    public InternshipAssignmentResponse updateAssignmentStatus(Integer assignmentId, UpdateAssignmentStatusRequest request) {
 
-        InternshipAssignment assignment =
-                assignmentRepository
-                        .findById(assignmentId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Assignment not found"
-                                )
-                        );
+        InternshipAssignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công thực tập"));
 
         if (request.getStatus() == null) {
 
-            throw new IllegalArgumentException(
-                    "Status is required"
-            );
+            throw new IllegalArgumentException("Trạng thái không được để trống");
         }
 
-        assignment.setStatus(
-                request.getStatus()
-        );
+        assignment.setStatus(request.getStatus());
 
-        assignment.setUpdatedAt(
-                LocalDateTime.now()
-        );
+        assignment.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                assignmentRepository.save(assignment)
-        );
+        return toResponse(assignmentRepository.save(assignment));
     }
 
-    private InternshipAssignmentResponse
-    toResponse(InternshipAssignment assignment) {
+    private InternshipAssignmentResponse toResponse(InternshipAssignment assignment) {
 
-        InternshipAssignmentResponse response =
-                new InternshipAssignmentResponse();
+        InternshipAssignmentResponse response = new InternshipAssignmentResponse();
 
-        response.setAssignmentId(
-                assignment.getAssignmentId()
-        );
+        response.setAssignmentId(assignment.getAssignmentId());
 
-        response.setStudentId(
-                assignment.getStudent()
-                        .getId()
-        );
+        response.setStudentId(assignment.getStudent().getId());
 
-        response.setStudentName(
-                assignment.getStudent()
-                        .getUser()
-                        .getFullName()
-        );
+        response.setStudentName(assignment.getStudent().getUser().getFullName());
 
-        response.setMentorId(
-                assignment.getMentor()
-                        .getId()
-        );
+        response.setMentorId(assignment.getMentor().getId());
 
-        response.setMentorName(
-                assignment.getMentor()
-                        .getUser()
-                        .getFullName()
-        );
+        response.setMentorName(assignment.getMentor().getUser().getFullName());
 
-        response.setPhaseId(
-                assignment.getPhase()
-                        .getPhaseId()
-        );
+        response.setPhaseId(assignment.getPhase().getPhaseId());
 
-        response.setPhaseName(
-                assignment.getPhase()
-                        .getPhaseName()
-        );
+        response.setPhaseName(assignment.getPhase().getPhaseName());
 
-        response.setAssignedDate(
-                assignment.getAssignedDate()
-        );
+        response.setAssignedDate(assignment.getAssignedDate());
 
-        response.setStatus(
-                assignment.getStatus()
-        );
+        response.setStatus(assignment.getStatus());
 
         return response;
     }
 
-    private void validateRequest(
-            InternshipAssignmentRequest request
-    ) {
+    private void validateRequest(InternshipAssignmentRequest request) {
 
         if (request.getStudentId() == null) {
 
-            throw new IllegalArgumentException(
-                    "Student id is required"
-            );
+            throw new IllegalArgumentException("Mã sinh viên không được để trống");
         }
 
         if (request.getMentorId() == null) {
 
-            throw new IllegalArgumentException(
-                    "Mentor id is required"
-            );
+            throw new IllegalArgumentException("Mã giảng viên hướng dẫn không được để trống");
         }
 
         if (request.getPhaseId() == null) {
 
-            throw new IllegalArgumentException(
-                    "Phase id is required"
-            );
+            throw new IllegalArgumentException("Mã giai đoạn thực tập không được để trống");
         }
     }
 }

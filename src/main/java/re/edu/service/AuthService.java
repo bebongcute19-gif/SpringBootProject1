@@ -14,9 +14,7 @@ public interface AuthService {
 
     JwtResponse login(UserLoginDTO req);
 
-    VerifyTokenResponse verifyToken(
-            VerifyTokenRequest req
-    );
+    VerifyTokenResponse verifyToken(VerifyTokenRequest req);
 
     UserResponse getCurrentUser();
 }

@@ -30,17 +30,13 @@ public class MentorServiceImpl implements MentorService {
 
         List<Mentor> mentors = mentorRepository.findAll();
 
-        return mentors.stream()
-                .map(this::toResponse)
-                .toList();
+        return mentors.stream().map(this::toResponse).toList();
     }
 
     @Override
     public MentorResponse getMentorById(Integer mentorId) {
 
-        Mentor mentor = mentorRepository.findById(mentorId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Mentor not found"));
+        Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên hướng dẫn"));
 
         checkViewPermission(mentor);
 
@@ -50,12 +46,11 @@ public class MentorServiceImpl implements MentorService {
     @Override
     public MentorResponse createMentor(MentorRequest request) {
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         if (user.getRole() != Role.MENTOR) {
-            throw new RuntimeException("User role must be MENTOR");
+
+            throw new RuntimeException("Vai trò của người dùng phải là MENTOR");
         }
 
         Mentor mentor = new Mentor();
@@ -66,18 +61,13 @@ public class MentorServiceImpl implements MentorService {
         mentor.setCreatedAt(LocalDateTime.now());
         mentor.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                mentorRepository.save(mentor)
-        );
+        return toResponse(mentorRepository.save(mentor));
     }
 
     @Override
-    public MentorResponse updateMentor(Integer mentorId,
-                                       MentorRequest request) {
+    public MentorResponse updateMentor(Integer mentorId, MentorRequest request) {
 
-        Mentor mentor = mentorRepository.findById(mentorId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Mentor not found"));
+        Mentor mentor = mentorRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên hướng dẫn"));
 
         checkUpdatePermission(mentor);
 
@@ -91,9 +81,7 @@ public class MentorServiceImpl implements MentorService {
 
         mentor.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(
-                mentorRepository.save(mentor)
-        );
+        return toResponse(mentorRepository.save(mentor));
     }
 
     private MentorResponse toResponse(Mentor mentor) {
@@ -114,39 +102,25 @@ public class MentorServiceImpl implements MentorService {
 
     private void checkViewPermission(Mentor mentor) {
 
-        CustomUserDetails userDetails =
-                (CustomUserDetails) SecurityContextHolder
-                        .getContext()
-                        .getAuthentication()
-                        .getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         User currentUser = userDetails.getUser();
 
-        if (currentUser.getRole() == Role.MENTOR
-                && !mentor.getUser().getId().equals(currentUser.getId())) {
+        if (currentUser.getRole() == Role.MENTOR && !mentor.getUser().getId().equals(currentUser.getId())) {
 
-            throw new AccessDeniedExceptionCustom(
-                    "You can only view your own profile"
-            );
+            throw new AccessDeniedExceptionCustom("Bạn chỉ có thể xem thông tin của chính mình");
         }
     }
 
     private void checkUpdatePermission(Mentor mentor) {
 
-        CustomUserDetails userDetails =
-                (CustomUserDetails) SecurityContextHolder
-                        .getContext()
-                        .getAuthentication()
-                        .getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         User currentUser = userDetails.getUser();
 
-        if (currentUser.getRole() == Role.MENTOR
-                && !mentor.getUser().getId().equals(currentUser.getId())) {
+        if (currentUser.getRole() == Role.MENTOR && !mentor.getUser().getId().equals(currentUser.getId())) {
 
-            throw new AccessDeniedExceptionCustom(
-                    "You can only update your own profile"
-            );
+            throw new AccessDeniedExceptionCustom("Bạn chỉ có thể cập nhật thông tin của chính mình");
         }
     }
 }

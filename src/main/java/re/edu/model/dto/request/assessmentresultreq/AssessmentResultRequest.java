@@ -12,23 +12,23 @@ import java.math.BigDecimal;
 @Setter
 public class AssessmentResultRequest {
 
-    @NotNull(message = "Assignment id is required")
+    @NotNull(message = "Mã phân công không được để trống")
     private Integer assignmentId;
 
-    @NotNull(message = "Round id is required")
+    @NotNull(message = "Mã đợt đánh giá không được để trống")
     private Integer roundId;
 
-    @NotNull(message = "Criterion id is required")
+    @NotNull(message = "Mã tiêu chí đánh giá không được để trống")
     private Integer criterionId;
 
-    @NotNull(message = "Score is required")
+    @NotNull(message = "Điểm số không được để trống")
     @DecimalMin(
             value = "0.0",
-            message = "Score must be >= 0"
+            message = "Điểm số phải lớn hơn hoặc bằng 0"
     )
     @DecimalMax(
             value = "10.0",
-            message = "Score must be <= 10"
+            message = "Điểm số phải nhỏ hơn hoặc bằng 10"
     )
     private BigDecimal score;
 

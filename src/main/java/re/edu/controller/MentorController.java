@@ -29,7 +29,7 @@ public class MentorController {
                         mentorService.getAllMentors(),
                         null,
                         200,
-                        "Get mentor list successfully"
+                        "Lấy danh sách giảng viên hướng dẫn thành công"
                 )
         );
     }
@@ -47,7 +47,7 @@ public class MentorController {
                         mentorService.getMentorById(mentorId),
                         null,
                         200,
-                        "Get mentor successfully"
+                        "Lấy thông tin giảng viên hướng dẫn thành công"
                 )
         );
     }
@@ -69,7 +69,7 @@ public class MentorController {
                                 mentorService.createMentor(request),
                                 null,
                                 201,
-                                "Create mentor successfully"
+                                "Tạo giảng viên hướng dẫn thành công"
                         )
                 );
     }
@@ -93,7 +93,7 @@ public class MentorController {
                         ),
                         null,
                         200,
-                        "Update mentor successfully"
+                        "Cập nhật giảng viên hướng dẫn thành công"
                 )
         );
     }

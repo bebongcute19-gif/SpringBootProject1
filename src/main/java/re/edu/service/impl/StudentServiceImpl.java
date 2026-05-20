@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import re.edu.exception.AccessDeniedExceptionCustom;
 import re.edu.exception.ResourceNotFoundException;
 import re.edu.model.dto.request.studentReq.StudentRequest;
 import re.edu.model.dto.response.studentRes.StudentResponse;
@@ -29,17 +30,13 @@ public class StudentServiceImpl implements StudentService {
 
         List<Student> students = studentRepository.findAll();
 
-        return students.stream()
-                .map(this::toResponse)
-                .toList();
+        return students.stream().map(this::toResponse).toList();
     }
 
     @Override
     public StudentResponse getStudentById(Integer studentId) {
 
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Student not found"));
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
 
         checkViewPermission(student);
 
@@ -49,9 +46,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentResponse createStudent(StudentRequest request) {
 
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         Student student = new Student();
 
@@ -62,18 +57,13 @@ public class StudentServiceImpl implements StudentService {
         student.setDateOfBirth(request.getDateOfBirth());
         student.setAddress(request.getAddress());
 
-        return toResponse(
-                studentRepository.save(student)
-        );
+        return toResponse(studentRepository.save(student));
     }
 
     @Override
-    public StudentResponse updateStudent(Integer studentId,
-                                         StudentRequest request) {
+    public StudentResponse updateStudent(Integer studentId, StudentRequest request) {
 
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Student not found"));
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
 
         checkUpdatePermission(student);
 
@@ -97,15 +87,12 @@ public class StudentServiceImpl implements StudentService {
             student.setAddress(request.getAddress());
         }
 
-        return toResponse(
-                studentRepository.save(student)
-        );
+        return toResponse(studentRepository.save(student));
     }
 
     private StudentResponse toResponse(Student student) {
 
-        StudentResponse response =
-                modelMapper.map(student, StudentResponse.class);
+        StudentResponse response = modelMapper.map(student, StudentResponse.class);
 
         response.setUserId(student.getUser().getId());
         response.setUsername(student.getUser().getUsername());
@@ -115,46 +102,30 @@ public class StudentServiceImpl implements StudentService {
 
     private void checkViewPermission(Student student) {
 
-        CustomUserDetails userDetails =
-                (CustomUserDetails) SecurityContextHolder
-                        .getContext()
-                        .getAuthentication()
-                        .getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String role = userDetails.getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority();
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
         if (role.equals("ROLE_STUDENT")) {
 
-            if (!student.getUser().getId()
-                    .equals(userDetails.getUser().getId())) {
+            if (!student.getUser().getId().equals(userDetails.getUser().getId())) {
 
-                throw new RuntimeException("Access denied");
+                throw new AccessDeniedExceptionCustom("Bạn chỉ có thể xem thông tin của chính mình");
             }
         }
     }
 
     private void checkUpdatePermission(Student student) {
 
-        CustomUserDetails userDetails =
-                (CustomUserDetails) SecurityContextHolder
-                        .getContext()
-                        .getAuthentication()
-                        .getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String role = userDetails.getAuthorities()
-                .iterator()
-                .next()
-                .getAuthority();
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
         if (role.equals("ROLE_STUDENT")) {
 
-            if (!student.getUser().getId()
-                    .equals(userDetails.getUser().getId())) {
+            if (!student.getUser().getId().equals(userDetails.getUser().getId())) {
 
-                throw new RuntimeException("Access denied");
+                throw new AccessDeniedExceptionCustom("Bạn chỉ có thể cập nhật thông tin của chính mình");
             }
         }
     }

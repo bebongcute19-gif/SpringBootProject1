@@ -9,12 +9,12 @@ import lombok.Setter;
 @Setter
 public class MentorRequest {
 
-    @NotNull(message = "User id is required")
+    @NotNull(message = "Mã người dùng không được để trống")
     private Integer userId;
 
-    @NotBlank(message = "Department is required")
+    @NotBlank(message = "Khoa/Bộ môn không được để trống")
     private String department;
 
-    @NotBlank(message = "Academic rank is required")
+    @NotBlank(message = "Học hàm/Học vị không được để trống")
     private String academicRank;
 }

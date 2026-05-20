@@ -33,7 +33,7 @@ public class InternshipAssignmentController {
                                 .getAllAssignments(),
                         null,
                         200,
-                        "Get assignments successfully"
+                        "Lấy danh sách phân công thực tập thành công"
                 )
         );
     }
@@ -56,7 +56,7 @@ public class InternshipAssignmentController {
                                 ),
                         null,
                         200,
-                        "Get assignment successfully"
+                        "Lấy thông tin phân công thực tập thành công"
                 )
         );
     }
@@ -80,7 +80,7 @@ public class InternshipAssignmentController {
                                         ),
                                 null,
                                 201,
-                                "Create assignment successfully"
+                                "Tạo phân công thực tập thành công"
                         )
                 );
     }
@@ -104,7 +104,7 @@ public class InternshipAssignmentController {
                                 ),
                         null,
                         200,
-                        "Update assignment status successfully"
+                        "Cập nhật trạng thái phân công thực tập thành công"
                 )
         );
     }
