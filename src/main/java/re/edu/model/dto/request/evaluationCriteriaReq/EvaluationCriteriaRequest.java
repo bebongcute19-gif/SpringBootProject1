@@ -12,6 +12,6 @@ public class EvaluationCriteriaRequest {
     private String criterionName;
 
     private String description;
-
+    
     private BigDecimal maxScore;
 }

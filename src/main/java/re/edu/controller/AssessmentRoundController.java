@@ -1,5 +1,6 @@
 package re.edu.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +67,7 @@ public class AssessmentRoundController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse>
     createRound(
+            @Valid
             @RequestBody
             AssessmentRoundRequest request
     ) {
@@ -115,11 +117,10 @@ public class AssessmentRoundController {
             @PathVariable Integer roundId
     ) {
 
-        assessmentRoundService.deleteRound(roundId);
-
         return ResponseEntity.ok(
                 MapToAPIResponse.mapTo(
-                        null,
+                        assessmentRoundService
+                                .deleteRound(roundId),
                         null,
                         200,
                         "Xóa đợt đánh giá thành công"

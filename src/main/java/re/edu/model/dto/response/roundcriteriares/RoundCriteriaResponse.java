@@ -20,4 +20,6 @@ public class RoundCriteriaResponse {
     private String criterionName;
 
     private BigDecimal weight;
+
+    private BigDecimal maxScore;
 }

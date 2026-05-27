@@ -28,20 +28,28 @@ public class RoundCriteriaServiceImpl implements RoundCriteriaService {
     private final EvaluationCriteriaRepository evaluationCriteriaRepository;
 
     @Override
-    public List<RoundCriteriaResponse> getAllRoundCriteria(Integer roundId) {
+    public List<RoundCriteriaResponse>
+    getByRoundId(
+            Integer roundId
+    ) {
 
-        List<RoundCriteria> list;
+        // CHECK ROUND TỒN TẠI
+        assessmentRoundRepository
+                .findById(roundId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Không tìm thấy đợt đánh giá"
+                        )
+                );
 
-        if (roundId != null) {
+        List<RoundCriteria> roundCriteriaList =
+                roundCriteriaRepository
+                        .findByRound_Id(roundId);
 
-            list = roundCriteriaRepository.findByRound_Id(roundId);
-
-        } else {
-
-            list = roundCriteriaRepository.findAll();
-        }
-
-        return list.stream().map(this::toResponse).toList();
+        return roundCriteriaList
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
@@ -111,21 +119,41 @@ public class RoundCriteriaServiceImpl implements RoundCriteriaService {
         roundCriteriaRepository.delete(roundCriteria);
     }
 
-    private RoundCriteriaResponse toResponse(RoundCriteria rc) {
+    private RoundCriteriaResponse toResponse(
+            RoundCriteria roundCriteria
+    ) {
 
-        RoundCriteriaResponse response = new RoundCriteriaResponse();
+        RoundCriteriaResponse response =
+                new RoundCriteriaResponse();
 
-        response.setRoundCriterionId(rc.getRoundCriterionId());
+        response.setRoundCriterionId(
+                roundCriteria.getRoundCriterionId()
+        );
 
-        response.setRoundId(rc.getRound().getId());
+        response.setRoundId(
+                roundCriteria.getRound().getId()
+        );
 
-        response.setRoundName(rc.getRound().getRoundName());
+        response.setRoundName(
+                roundCriteria.getRound().getRoundName()
+        );
 
-        response.setCriterionId(rc.getCriterion().getCriterionId());
+        response.setCriterionId(
+                roundCriteria.getCriterion()
+                        .getCriterionId()
+        );
 
-        response.setCriterionName(rc.getCriterion().getCriterionName());
-
-        response.setWeight(rc.getWeight());
+        response.setCriterionName(
+                roundCriteria.getCriterion()
+                        .getCriterionName()
+        );
+        response.setMaxScore(
+                roundCriteria.getCriterion()
+                        .getMaxScore()
+        );
+        response.setWeight(
+                roundCriteria.getWeight()
+        );
 
         return response;
     }

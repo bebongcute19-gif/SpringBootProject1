@@ -1,20 +1,21 @@
 package re.edu.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import re.edu.exception.AccessDeniedExceptionCustom;
 import re.edu.exception.ResourceNotFoundException;
 import re.edu.model.dto.request.internshipassignmentreq.InternshipAssignmentRequest;
 import re.edu.model.dto.request.internshipassignmentreq.UpdateAssignmentStatusRequest;
 import re.edu.model.dto.response.internshipassignmentres.InternshipAssignmentResponse;
-import re.edu.model.entity.InternshipAssignment;
-import re.edu.model.entity.InternshipPhase;
-import re.edu.model.entity.Mentor;
-import re.edu.model.entity.Student;
+import re.edu.model.entity.*;
 import re.edu.model.enums.AssignmentStatus;
+import re.edu.model.enums.Role;
 import re.edu.repository.assessmentRep.InternshipAssignmentRepository;
 import re.edu.repository.internshipRep.InternshipPhaseRepository;
 import re.edu.repository.userRep.MentorRepository;
 import re.edu.repository.userRep.StudentRepository;
+import re.edu.security.userDetail.CustomUserDetails;
 import re.edu.service.InternshipAssignmentService;
 
 import java.time.LocalDateTime;
@@ -33,17 +34,148 @@ public class InternshipAssignmentServiceImpl implements InternshipAssignmentServ
     private final InternshipPhaseRepository phaseRepository;
 
     @Override
-    public List<InternshipAssignmentResponse> getAllAssignments() {
+    public List<InternshipAssignmentResponse>
+    getAllAssignments() {
 
-        return assignmentRepository.findAll().stream().map(this::toResponse).toList();
+        CustomUserDetails userDetails =
+                (CustomUserDetails)
+                        SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                                .getPrincipal();
+
+        User currentUser =
+                userDetails.getUser();
+
+        List<InternshipAssignment> assignments;
+
+        // ===== ADMIN =====
+        if (
+                currentUser.getRole()
+                        == Role.ADMIN
+        ) {
+
+            assignments =
+                    assignmentRepository
+                            .findAll();
+        }
+
+        // ===== MENTOR =====
+        else if (
+                currentUser.getRole()
+                        == Role.MENTOR
+        ) {
+
+            assignments =
+                    assignmentRepository
+                            .findByMentor_Id(
+                                    currentUser.getId()
+                            );
+        }
+
+        // ===== STUDENT =====
+        else if (
+                currentUser.getRole()
+                        == Role.STUDENT
+        ) {
+
+            assignments =
+                    assignmentRepository
+                            .findByStudent_Id(
+                                    currentUser.getId()
+                            );
+        }
+
+        else {
+
+            throw new IllegalArgumentException(
+                    "Không có quyền truy cập"
+            );
+        }
+
+        return assignments
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
-    public InternshipAssignmentResponse getAssignmentById(Integer assignmentId) {
+    public InternshipAssignmentResponse
+    getAssignmentById(
+            Integer assignmentId
+    ) {
 
-        InternshipAssignment assignment = assignmentRepository.findById(assignmentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công thực tập"));
+        InternshipAssignment assignment =
+                assignmentRepository
+                        .findById(assignmentId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Không tìm thấy phân công thực tập"
+                                )
+                        );
 
-        return toResponse(assignment);
+        CustomUserDetails userDetails =
+                (CustomUserDetails)
+                        SecurityContextHolder
+                                .getContext()
+                                .getAuthentication()
+                                .getPrincipal();
+
+        User currentUser =
+                userDetails.getUser();
+
+        // ===== ADMIN =====
+        if (
+                currentUser.getRole()
+                        == Role.ADMIN
+        ) {
+
+            return toResponse(assignment);
+        }
+
+        // ===== MENTOR =====
+        if (
+                currentUser.getRole()
+                        == Role.MENTOR
+        ) {
+
+            if (
+                    !assignment.getMentor()
+                            .getId()
+                            .equals(currentUser.getId())
+            ) {
+
+                throw new AccessDeniedExceptionCustom(
+                        "Bạn không có quyền truy cập"
+                );
+            }
+
+            return toResponse(assignment);
+        }
+
+        // ===== STUDENT =====
+        if (
+                currentUser.getRole()
+                        == Role.STUDENT
+        ) {
+
+            if (
+                    !assignment.getStudent()
+                            .getId()
+                            .equals(currentUser.getId())
+            ) {
+
+                throw new AccessDeniedExceptionCustom(
+                        "Bạn không có quyền truy cập"
+                );
+            }
+
+            return toResponse(assignment);
+        }
+
+        throw new AccessDeniedExceptionCustom(
+                "Bạn không có quyền truy cập"
+        );
     }
 
     @Override

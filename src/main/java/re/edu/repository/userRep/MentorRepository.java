@@ -4,4 +4,5 @@ import re.edu.model.entity.Mentor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MentorRepository extends JpaRepository<Mentor, Integer> {
+    boolean existsById(Integer id);
 }

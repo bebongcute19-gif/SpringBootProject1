@@ -24,18 +24,18 @@ public class RoundCriteriaController {
             "hasAnyRole('ADMIN','MENTOR','STUDENT')"
     )
     public ResponseEntity<ApiResponse>
-    getAllRoundCriteria(
-            @RequestParam(required = false)
-            Integer roundId
+    getRoundCriteriaByRoundId(
+
+            @RequestParam Integer roundId
     ) {
 
         return ResponseEntity.ok(
                 MapToAPIResponse.mapTo(
                         roundCriteriaService
-                                .getAllRoundCriteria(roundId),
+                                .getByRoundId(roundId),
                         null,
                         200,
-                        "Lấy danh sách tiêu chí của đợt đánh giá thành công"
+                        "Lấy danh sách tiêu chí thành công"
                 )
         );
     }

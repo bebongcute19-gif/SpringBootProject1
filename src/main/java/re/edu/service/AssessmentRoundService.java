@@ -2,6 +2,7 @@ package re.edu.service;
 
 import re.edu.model.dto.request.assessmentRoundReq.AssessmentRoundRequest;
 import re.edu.model.dto.response.assessmentRoundRes.AssessmentRoundResponse;
+import re.edu.model.dto.response.assessmentRoundRes.CreateAssessmnet;
 
 import java.util.List;
 
@@ -11,9 +12,11 @@ public interface AssessmentRoundService {
 
     AssessmentRoundResponse getRoundById(Integer roundId);
 
-    AssessmentRoundResponse createRound(AssessmentRoundRequest request);
+    CreateAssessmnet createRound(AssessmentRoundRequest request);
 
     AssessmentRoundResponse updateRound(Integer roundId, AssessmentRoundRequest request);
 
-    void deleteRound(Integer roundId);
+    String deleteRound(
+            Integer roundId
+    );
 }

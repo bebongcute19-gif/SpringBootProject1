@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import re.edu.exception.*;
 import re.edu.mapper.MapToAPIResponse;
+import re.edu.model.dto.response.authRes.ApiResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,148 +20,70 @@ public class GlobalExceptionHandler {
 
     // ================= METHOD NOT ALLOWED =================
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> handleMethodNotSupported(
-            HttpRequestMethodNotSupportedException e
-    ) {
+    public ResponseEntity<?> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Lỗi phương thức",
-                "Phương thức HTTP không được hỗ trợ"
-        );
+        res.put("Lỗi phương thức", "Phương thức HTTP không được hỗ trợ");
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
-                        405,
-                        "Phương thức không được hỗ trợ"
-                ),
-                HttpStatus.METHOD_NOT_ALLOWED
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 405, "Phương thức không được hỗ trợ"), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     // ================= JWT =================
     @ExceptionHandler(JwtExceptionCustom.class)
-    public ResponseEntity<?> handleJwtException(
-            JwtExceptionCustom e
-    ) {
+    public ResponseEntity<?> handleJwtException(JwtExceptionCustom e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Lỗi token",
-                e.getMessage()
-        );
+        res.put("Lỗi token", e.getMessage());
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
-                        401,
-                        "Xác thực token thất bại"
-                ),
-                HttpStatus.UNAUTHORIZED
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 401, "Xác thực token thất bại"), HttpStatus.UNAUTHORIZED);
     }
 
     // ================= LOGIN =================
     @ExceptionHandler(BadCredentialsExceptionCustom.class)
-    public ResponseEntity<?> handleBadCredentials(
-            BadCredentialsExceptionCustom e
-    ) {
+    public ResponseEntity<?> handleBadCredentials(BadCredentialsExceptionCustom e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Lỗi đăng nhập",
-                e.getMessage()
-        );
+        res.put("Lỗi đăng nhập", e.getMessage());
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
-                        401,
-                        "Đăng nhập thất bại"
-                ),
-                HttpStatus.UNAUTHORIZED
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 401, "Đăng nhập thất bại"), HttpStatus.UNAUTHORIZED);
     }
 
     // ================= ACCESS DENIED =================
     @ExceptionHandler(AccessDeniedExceptionCustom.class)
-    public ResponseEntity<?> handleAccessDenied(
-            AccessDeniedExceptionCustom e
-    ) {
+    public ResponseEntity<?> handleAccessDenied(AccessDeniedExceptionCustom e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Lỗi phân quyền",
-                e.getMessage()
-        );
+        res.put("Lỗi phân quyền", e.getMessage());
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
-                        403,
-                        "Bạn không có quyền truy cập"
-                ),
-                HttpStatus.FORBIDDEN
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 403, "Bạn không có quyền truy cập"), HttpStatus.FORBIDDEN);
     }
 
     // ================= VALIDATION =================
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidation(
-            MethodArgumentNotValidException e
-    ) {
+    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException e) {
 
         Map<String, Object> errors = new HashMap<>();
 
         e.getFieldErrors().forEach(err -> {
-            errors.put(
-                    err.getField(),
-                    err.getDefaultMessage()
-            );
+            errors.put(err.getField(), err.getDefaultMessage());
         });
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        errors,
-                        400,
-                        "Dữ liệu gửi lên không hợp lệ"
-                ),
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, errors, 400, "Dữ liệu gửi lên không hợp lệ"), HttpStatus.BAD_REQUEST);
     }
 
     // ================= DUPLICATE =================
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<?> handleDuplicate(
-            DuplicateResourceException e
-    ) {
+    public ResponseEntity<?> handleDuplicate(DuplicateResourceException e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Lỗi trùng lặp",
-                e.getMessage()
-        );
+        res.put("Lỗi trùng lặp", e.getMessage());
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
-                        409,
-                        "Dữ liệu đã tồn tại"
-                ),
-                HttpStatus.CONFLICT
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 409, "Dữ liệu đã tồn tại"), HttpStatus.CONFLICT);
     }
 
     // ================= INVALID JSON =================
@@ -173,47 +96,30 @@ public class GlobalExceptionHandler {
                 new HashMap<>();
 
         String message =
-                e.getMessage();
+                e.getMostSpecificCause()
+                        .getMessage();
 
         System.out.println(message);
 
-        // ===== UNKNOWN FIELD =====
+        // ===== LOCAL DATE FORMAT =====
         if (
-                message.contains("assignmentId")
+                message.contains("could not be parsed")
                         ||
-                        message.contains("roundId")
+                        message.contains("DateTimeParseException")
                         ||
-                        message.contains("criterionId")
-                        ||
-                        message.contains("Unrecognized")
-                        ||
-                        message.contains("JSON parse error")
-        ) {
-
-            String fieldName = "field";
-
-            if (message.contains("assignmentId")) {
-
-                fieldName = "assignmentId";
-
-            } else if (message.contains("roundId")) {
-
-                fieldName = "roundId";
-
-            } else if (message.contains("criterionId")) {
-
-                fieldName = "criterionId";
-            }
+                        message.contains("LocalDate")
+        ){
 
             res.put(
                     "Lỗi dữ liệu",
-                    fieldName
-                            + " không được phép xuất hiện trong request"
+                    "Ngày phải có định dạng yyyy-MM-dd"
             );
         }
 
         // ===== BOOLEAN =====
-        else if (message.contains("Boolean")) {
+        else if (
+                message.contains("Boolean")
+        ) {
 
             res.put(
                     "Lỗi dữ liệu",
@@ -221,8 +127,10 @@ public class GlobalExceptionHandler {
             );
         }
 
-        // ===== ROLE =====
-        else if (message.contains("Role")) {
+        // ===== ROLE ENUM =====
+        else if (
+                message.contains("Role")
+        ) {
 
             res.put(
                     "Lỗi dữ liệu",
@@ -230,7 +138,7 @@ public class GlobalExceptionHandler {
             );
         }
 
-        // ===== ENUM =====
+        // ===== ASSIGNMENT STATUS ENUM =====
         else if (
                 message.contains("AssignmentStatus")
         ) {
@@ -241,12 +149,83 @@ public class GlobalExceptionHandler {
             );
         }
 
+        // ===== UNKNOWN FIELD =====
+        else if (
+                message.contains("Unrecognized field")
+        ) {
+
+            String fieldName = "field";
+
+            if (
+                    message.contains("\"assignmentId\"")
+            ) {
+
+                fieldName = "assignmentId";
+            }
+
+            else if (
+                    message.contains("\"roundId\"")
+            ) {
+
+                fieldName = "roundId";
+            }
+
+            else if (
+                    message.contains("\"criterionId\"")
+            ) {
+
+                fieldName = "criterionId";
+            }
+
+            else if (
+                    message.contains("\"phaseId\"")
+            ) {
+
+                fieldName = "phaseId";
+            }
+
+            else if (
+                    message.contains("\"mentorId\"")
+            ) {
+
+                fieldName = "mentorId";
+            }
+
+            else if (
+                    message.contains("\"studentId\"")
+            ) {
+
+                fieldName = "studentId";
+            }
+
+            res.put(
+                    "Lỗi dữ liệu",
+                    fieldName
+                            + " không được phép xuất hiện trong request"
+            );
+        }
+
+        // ===== NUMBER FORMAT =====
+        else if (
+                message.contains("Integer")
+                        ||
+                        message.contains("Long")
+                        ||
+                        message.contains("Double")
+        ) {
+
+            res.put(
+                    "Lỗi dữ liệu",
+                    "Kiểu dữ liệu số không hợp lệ"
+            );
+        }
+
         // ===== DEFAULT =====
         else {
 
             res.put(
                     "Lỗi dữ liệu",
-                    "Dữ liệu gửi lên không hợp lệ hoặc bị thiếu"
+                    "JSON gửi lên không hợp lệ"
             );
         }
 
@@ -259,204 +238,128 @@ public class GlobalExceptionHandler {
                 ),
                 HttpStatus.BAD_REQUEST
         );
-    }
-
-    // ================= ILLEGAL ARGUMENT =================
+    }// ================= ILLEGAL ARGUMENT =================
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgument(
-            IllegalArgumentException e
-    ) {
+    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Lỗi dữ liệu",
-                e.getMessage()
-        );
+        res.put("Lỗi dữ liệu", e.getMessage());
 
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
-                        400,
-                        "Dữ liệu không hợp lệ"
-                ),
-                HttpStatus.BAD_REQUEST
-        );
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 400, "Dữ liệu không hợp lệ"), HttpStatus.BAD_REQUEST);
     }
 
     // ================= NOT FOUND =================
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(
-            ResourceNotFoundException e
-    ) {
+    public ResponseEntity<?> handleNotFound(ResourceNotFoundException e) {
 
         Map<String, Object> res = new HashMap<>();
 
-        res.put(
-                "Không tìm thấy",
+        res.put("Không tìm thấy", e.getMessage());
+
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 404, "Không tìm thấy dữ liệu"), HttpStatus.NOT_FOUND);
+    }
+
+    // ================= DATABASE CONSTRAINT =================
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+
+        Map<String, Object> res = new HashMap<>();
+
+        String rootMessage = ex.getMostSpecificCause().getMessage();
+
+        String message = "Vi phạm ràng buộc dữ liệu";
+
+        // ===== INTERNSHIP PHASE DUPLICATE =====
+        if (rootMessage.contains("internship_phase_phase_name_key")) {
+
+            message = "Tên giai đoạn thực tập đã tồn tại";
+        }
+
+        // ===== INTERNSHIP PHASE FOREIGN KEY =====
+        else if (rootMessage.contains("fk_assignment_phase")) {
+
+            message = "Không thể xóa vì giai đoạn đang được sử dụng";
+        }
+
+        // ===== PHASE SEQUENCE =====
+        else if (rootMessage.contains("internship_phase_pkey")) {
+
+            message = "Sequence phase_id không đồng bộ với database";
+        }
+
+        // ===== EVALUATION CRITERIA DUPLICATE =====
+        else if (rootMessage.contains("evaluation_criteria_criterion_name_key")) {
+
+            message = "Tên tiêu chí đánh giá đã tồn tại";
+        }
+
+        // ===== EVALUATION CRITERIA SEQUENCE =====
+        else if (rootMessage.contains("evaluation_criteria_pkey")) {
+
+            message = "Sequence criterion_id không đồng bộ với database";
+        }
+
+        // ===== ASSESSMENT ROUND SEQUENCE =====
+        else if (rootMessage.contains("assessment_rounds_pkey")) {
+
+            message = "Sequence assessment_round_id không đồng bộ với database";
+        }
+
+        // ===== ROUND CRITERIA DUPLICATE =====
+        else if (rootMessage.contains("round_criteria_round_id_criterion_id_key")) {
+
+            message = "Tiêu chí đã tồn tại trong đợt đánh giá";
+        }
+
+        // ===== ROUND CRITERIA SEQUENCE =====
+        else if (rootMessage.contains("round_criteria_pkey")) {
+
+            message = "Sequence round_criterion_id không đồng bộ với database";
+        }
+
+        // ===== INTERNSHIP ASSIGNMENT DUPLICATE =====
+        else if (rootMessage.contains("internship_assignments_student_id_phase_id_key")) {
+
+            message = "Sinh viên đã được phân công trong giai đoạn này";
+        }
+
+        // ===== INTERNSHIP ASSIGNMENT SEQUENCE =====
+        else if (rootMessage.contains("internship_assignments_pkey")) {
+
+            message = "Sequence assignment_id không đồng bộ với database";
+        }
+
+        // ===== NOT NULL =====
+        else if (rootMessage.contains("null value")) {
+
+            message = "Không được để trống dữ liệu bắt buộc";
+        }
+
+        res.put("Lỗi dữ liệu", message);
+
+        System.out.println("DB ERROR: " + rootMessage);
+
+        return new ResponseEntity<>(MapToAPIResponse.mapTo(null, res, 409, "Lỗi ràng buộc dữ liệu"), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse>
+    handleIllegalState(
+            IllegalStateException e
+    ) {
+
+        Map<String, String> errors =
+                new HashMap<>();
+
+        errors.put(
+                "Lỗi dữ liệu",
                 e.getMessage()
         );
 
         return new ResponseEntity<>(
                 MapToAPIResponse.mapTo(
                         null,
-                        res,
-                        404,
-                        "Không tìm thấy dữ liệu"
-                ),
-                HttpStatus.NOT_FOUND
-        );
-    }
-
-    // ================= DATABASE CONSTRAINT =================
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolation(
-            DataIntegrityViolationException ex
-    ) {
-
-        Map<String, Object> res = new HashMap<>();
-
-        String rootMessage =
-                ex.getMostSpecificCause().getMessage();
-
-        String message =
-                "Vi phạm ràng buộc dữ liệu";
-
-        // ===== INTERNSHIP PHASE DUPLICATE =====
-        if (
-                rootMessage.contains(
-                        "internship_phase_phase_name_key"
-                )
-        ) {
-
-            message =
-                    "Tên giai đoạn thực tập đã tồn tại";
-        }
-
-        // ===== INTERNSHIP PHASE FOREIGN KEY =====
-        else if (
-                rootMessage.contains(
-                        "fk_assignment_phase"
-                )
-        ) {
-
-            message =
-                    "Không thể xóa vì giai đoạn đang được sử dụng";
-        }
-
-        // ===== PHASE SEQUENCE =====
-        else if (
-                rootMessage.contains(
-                        "internship_phase_pkey"
-                )
-        ) {
-
-            message =
-                    "Sequence phase_id không đồng bộ với database";
-        }
-
-        // ===== EVALUATION CRITERIA DUPLICATE =====
-        else if (
-                rootMessage.contains(
-                        "evaluation_criteria_criterion_name_key"
-                )
-        ) {
-
-            message =
-                    "Tên tiêu chí đánh giá đã tồn tại";
-        }
-
-        // ===== EVALUATION CRITERIA SEQUENCE =====
-        else if (
-                rootMessage.contains(
-                        "evaluation_criteria_pkey"
-                )
-        ) {
-
-            message =
-                    "Sequence criterion_id không đồng bộ với database";
-        }
-
-        // ===== ASSESSMENT ROUND SEQUENCE =====
-        else if (
-                rootMessage.contains(
-                        "assessment_rounds_pkey"
-                )
-        ) {
-
-            message =
-                    "Sequence assessment_round_id không đồng bộ với database";
-        }
-
-        // ===== ROUND CRITERIA DUPLICATE =====
-        else if (
-                rootMessage.contains(
-                        "round_criteria_round_id_criterion_id_key"
-                )
-        ) {
-
-            message =
-                    "Tiêu chí đã tồn tại trong đợt đánh giá";
-        }
-
-        // ===== ROUND CRITERIA SEQUENCE =====
-        else if (
-                rootMessage.contains(
-                        "round_criteria_pkey"
-                )
-        ) {
-
-            message =
-                    "Sequence round_criterion_id không đồng bộ với database";
-        }
-
-        // ===== INTERNSHIP ASSIGNMENT DUPLICATE =====
-        else if (
-                rootMessage.contains(
-                        "internship_assignments_student_id_phase_id_key"
-                )
-        ) {
-
-            message =
-                    "Sinh viên đã được phân công trong giai đoạn này";
-        }
-
-        // ===== INTERNSHIP ASSIGNMENT SEQUENCE =====
-        else if (
-                rootMessage.contains(
-                        "internship_assignments_pkey"
-                )
-        ) {
-
-            message =
-                    "Sequence assignment_id không đồng bộ với database";
-        }
-
-        // ===== NOT NULL =====
-        else if (
-                rootMessage.contains(
-                        "null value"
-                )
-        ) {
-
-            message =
-                    "Không được để trống dữ liệu bắt buộc";
-        }
-
-        res.put(
-                "Lỗi dữ liệu",
-                message
-        );
-
-        System.out.println(
-                "DB ERROR: " + rootMessage
-        );
-
-        return new ResponseEntity<>(
-                MapToAPIResponse.mapTo(
-                        null,
-                        res,
+                        errors,
                         409,
                         "Lỗi ràng buộc dữ liệu"
                 ),

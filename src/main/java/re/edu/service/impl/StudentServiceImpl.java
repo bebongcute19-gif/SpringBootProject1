@@ -5,8 +5,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import re.edu.exception.AccessDeniedExceptionCustom;
+import re.edu.exception.DuplicateResourceException;
 import re.edu.exception.ResourceNotFoundException;
 import re.edu.model.dto.request.studentReq.StudentRequest;
+import re.edu.model.dto.request.studentReq.UpdateStudent;
 import re.edu.model.dto.response.studentRes.StudentResponse;
 import re.edu.model.entity.Student;
 import re.edu.model.entity.User;
@@ -28,9 +30,41 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<StudentResponse> getAllStudents() {
 
-        List<Student> students = studentRepository.findAll();
+        CustomUserDetails userDetails =
+                (CustomUserDetails) SecurityContextHolder
+                        .getContext()
+                        .getAuthentication()
+                        .getPrincipal();
 
-        return students.stream().map(this::toResponse).toList();
+        User currentUser = userDetails.getUser();
+
+        List<Student> students;
+
+        // ADMIN xem toàn bộ
+        if (currentUser.getRole() == re.edu.model.enums.Role.ADMIN) {
+
+            students = studentRepository.findAll();
+        }
+
+        // MENTOR chỉ xem sinh viên được phân công
+        else if (currentUser.getRole() == re.edu.model.enums.Role.MENTOR) {
+
+            students = studentRepository
+                    .findDistinctByAssignments_Mentor_Id(
+                            currentUser.getId()
+                    );
+        }
+
+        else {
+
+            throw new AccessDeniedExceptionCustom(
+                    "Bạn không có quyền truy cập"
+            );
+        }
+
+        return students.stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override
@@ -45,8 +79,32 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentResponse createStudent(StudentRequest request) {
+        if (studentRepository.existsByStudentCode(
+                request.getStudentCode()
+        )) {
 
+            throw new DuplicateResourceException(
+                    "Mã sinh viên đã tồn tại"
+            );
+        }
         User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+
+        // check role
+        if (user.getRole() != re.edu.model.enums.Role.STUDENT) {
+
+            throw new IllegalArgumentException(
+                    "Người dùng phải có vai trò STUDENT"
+            );
+        }
+        // check student existed
+        if (studentRepository.existsById(
+                user.getId()
+        )) {
+
+            throw new DuplicateResourceException(
+                    "Sinh viên đã tồn tại"
+            );
+        }
 
         Student student = new Student();
 
@@ -61,13 +119,26 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public StudentResponse updateStudent(Integer studentId, StudentRequest request) {
+    public StudentResponse updateStudent(Integer studentId, UpdateStudent request) {
 
         Student student = studentRepository.findById(studentId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
 
         checkUpdatePermission(student);
 
-        if (request.getStudentCode() != null) {
+        if (request.getStudentCode() != null
+                && !request.getStudentCode().isBlank()) {
+
+            // check duplicate
+            if (!student.getStudentCode().equals(request.getStudentCode())
+                    && studentRepository.existsByStudentCode(
+                    request.getStudentCode()
+            )) {
+
+                throw new DuplicateResourceException(
+                        "Mã sinh viên đã tồn tại"
+                );
+            }
+
             student.setStudentCode(request.getStudentCode());
         }
 
@@ -96,6 +167,7 @@ public class StudentServiceImpl implements StudentService {
 
         response.setUserId(student.getUser().getId());
         response.setUsername(student.getUser().getUsername());
+        response.setFullName(student.getUser().getFullName());
 
         return response;
     }

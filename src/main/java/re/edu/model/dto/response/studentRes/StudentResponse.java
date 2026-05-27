@@ -10,6 +10,12 @@ public class StudentResponse {
 
     private Integer id;
 
+    private Integer userId;
+
+    private String username;
+
+    private String fullName;
+
     private String studentCode;
 
     private String major;
@@ -19,8 +25,4 @@ public class StudentResponse {
     private LocalDate dateOfBirth;
 
     private String address;
-
-    private Integer userId;
-
-    private String username;
 }

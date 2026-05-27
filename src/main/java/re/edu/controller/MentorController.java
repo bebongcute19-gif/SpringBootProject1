@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import re.edu.mapper.MapToAPIResponse;
 import re.edu.model.dto.request.mentorReq.MentorRequest;
+import re.edu.model.dto.request.mentorReq.UpdateMentorRequest;
 import re.edu.model.dto.response.authRes.ApiResponse;
 import re.edu.service.MentorService;
 
@@ -77,12 +78,12 @@ public class MentorController {
     // 17. Update mentor
     @PutMapping("/{mentorId}")
     @PreAuthorize("hasAnyRole('ADMIN','MENTOR')")
-    public ResponseEntity<ApiResponse>
-    updateMentor(
+    public ResponseEntity<ApiResponse> updateMentor(
             @PathVariable Integer mentorId,
+
             @Valid
             @RequestBody
-            MentorRequest request
+            UpdateMentorRequest request
     ) {
 
         return ResponseEntity.ok(

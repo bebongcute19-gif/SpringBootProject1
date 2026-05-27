@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import re.edu.exception.ResourceNotFoundException;
 import re.edu.model.dto.request.internshipPhaseReq.InternshipPhaseRequest;
+import re.edu.model.dto.request.internshipPhaseReq.UpdateInternshipPhase;
 import re.edu.model.dto.response.internshipPhaseRes.InternshipPhaseResponse;
 import re.edu.model.entity.InternshipPhase;
 import re.edu.repository.internshipRep.InternshipPhaseRepository;
@@ -52,20 +53,56 @@ public class InternshipPhaseServiceImpl implements InternshipPhaseService {
     }
 
     @Override
-    public InternshipPhaseResponse updatePhase(Integer phaseId, InternshipPhaseRequest request) {
+    public InternshipPhaseResponse updatePhase(
+            Integer phaseId,
+            UpdateInternshipPhase request
+    ) {
 
-        validateDate(request);
+        InternshipPhase phase = internshipPhaseRepository.findById(phaseId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Không tìm thấy giai đoạn thực tập"
+                        )
+                );
 
-        InternshipPhase phase = internshipPhaseRepository.findById(phaseId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giai đoạn thực tập"));
+        // update phaseName
+        if (request.getPhaseName() != null
+                && !request.getPhaseName().isBlank()) {
 
-        phase.setPhaseName(request.getPhaseName());
-        phase.setDescription(request.getDescription());
-        phase.setStartDate(request.getStartDate());
-        phase.setEndDate(request.getEndDate());
+            phase.setPhaseName(request.getPhaseName());
+        }
+
+        // update description
+        if (request.getDescription() != null) {
+
+            phase.setDescription(request.getDescription());
+        }
+
+        // update startDate
+        if (request.getStartDate() != null) {
+
+            phase.setStartDate(request.getStartDate());
+        }
+
+        // update endDate
+        if (request.getEndDate() != null) {
+
+            phase.setEndDate(request.getEndDate());
+        }
+
+        // validate date sau khi update
+        if (phase.getEndDate().isBefore(phase.getStartDate())) {
+
+            throw new IllegalArgumentException(
+                    "Ngày kết thúc phải sau ngày bắt đầu"
+            );
+        }
 
         phase.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(internshipPhaseRepository.save(phase));
+        return toResponse(
+                internshipPhaseRepository.save(phase)
+        );
     }
 
     @Override

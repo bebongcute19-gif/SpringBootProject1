@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,5 +30,10 @@ public class AssessmentRound {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
+    @OneToMany(
+            mappedBy = "round",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<RoundCriteria> roundCriteriaList;
 }

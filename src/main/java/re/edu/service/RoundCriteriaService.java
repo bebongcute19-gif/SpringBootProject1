@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RoundCriteriaService {
 
-    List<RoundCriteriaResponse> getAllRoundCriteria(Integer roundId);
+    List<RoundCriteriaResponse> getByRoundId(Integer roundId);
 
     RoundCriteriaResponse getRoundCriteriaById(Integer id);
 

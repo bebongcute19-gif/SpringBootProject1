@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import re.edu.mapper.MapToAPIResponse;
 import re.edu.model.dto.request.studentReq.StudentRequest;
+import re.edu.model.dto.request.studentReq.UpdateStudent;
 import re.edu.model.dto.response.authRes.ApiResponse;
 import re.edu.service.StudentService;
 
@@ -83,7 +84,7 @@ public class StudentController {
             @PathVariable Integer studentId,
             @Valid
             @RequestBody
-            StudentRequest request
+            UpdateStudent request
     ) {
 
         return ResponseEntity.ok(

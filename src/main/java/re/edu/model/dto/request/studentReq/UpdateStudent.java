@@ -1,16 +1,13 @@
 package re.edu.model.dto.request.studentReq;
 
-import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
+
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
-public class StudentRequest {
-
-    @NotBlank(message = "Mã sinh viên không được để trống")
+public class UpdateStudent {
     private String studentCode;
 
     private String major;

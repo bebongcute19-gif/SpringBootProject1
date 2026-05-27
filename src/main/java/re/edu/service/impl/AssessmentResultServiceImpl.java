@@ -9,6 +9,7 @@ import re.edu.model.dto.request.assessmentresultreq.AssessmentResultRequest;
 import re.edu.model.dto.request.assessmentresultreq.AssessmentResultUpdateRequest;
 import re.edu.model.dto.response.assessmentresultres.AssessmentResultResponse;
 import re.edu.model.entity.*;
+import re.edu.model.enums.Role;
 import re.edu.repository.assessmentRep.AssessmentResultRepository;
 import re.edu.repository.assessmentRep.AssessmentRoundRepository;
 import re.edu.repository.assessmentRep.InternshipAssignmentRepository;
@@ -32,20 +33,99 @@ public class AssessmentResultServiceImpl implements AssessmentResultService {
     private final EvaluationCriteriaRepository criteriaRepository;
 
     @Override
-    public List<AssessmentResultResponse> getAllResults(Integer assignmentId) {
+    public List<AssessmentResultResponse>
+    getAllResults(
+            Integer assignmentId
+    ) {
+
+        User currentUser =
+                getCurrentUser();
 
         List<AssessmentResult> results;
 
-        if (assignmentId != null) {
+        // ===== ADMIN =====
+        if (
+                currentUser.getRole()
+                        == Role.ADMIN
+        ) {
 
-            results = resultRepository.findByAssignment_AssignmentId(assignmentId);
+            if (assignmentId != null) {
 
-        } else {
+                results =
+                        resultRepository
+                                .findByAssignment_AssignmentId(
+                                        assignmentId
+                                );
 
-            results = resultRepository.findAll();
+            } else {
+
+                results =
+                        resultRepository
+                                .findAll();
+            }
         }
 
-        return results.stream().map(this::toResponse).toList();
+        // ===== MENTOR =====
+        else if (
+                currentUser.getRole()
+                        == Role.MENTOR
+        ) {
+
+            if (assignmentId != null) {
+
+                results =
+                        resultRepository
+                                .findByAssignment_AssignmentIdAndEvaluatedBy_Id(
+                                        assignmentId,
+                                        currentUser.getId()
+                                );
+
+            } else {
+
+                results =
+                        resultRepository
+                                .findByEvaluatedBy_Id(
+                                        currentUser.getId()
+                                );
+            }
+        }
+
+        // ===== STUDENT =====
+        else if (
+                currentUser.getRole()
+                        == Role.STUDENT
+        ) {
+
+            if (assignmentId != null) {
+
+                results =
+                        resultRepository
+                                .findByAssignment_AssignmentIdAndAssignment_Student_Id(
+                                        assignmentId,
+                                        currentUser.getId()
+                                );
+
+            } else {
+
+                results =
+                        resultRepository
+                                .findByAssignment_Student_Id(
+                                        currentUser.getId()
+                                );
+            }
+        }
+
+        else {
+
+            throw new IllegalArgumentException(
+                    "Bạn không có quyền truy cập"
+            );
+        }
+
+        return results
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     @Override

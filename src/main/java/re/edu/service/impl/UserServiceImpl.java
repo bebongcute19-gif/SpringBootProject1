@@ -16,6 +16,7 @@ import re.edu.model.dto.request.userReq.UpdateUserRequest;
 import re.edu.model.dto.response.userRes.UserResponse;
 import re.edu.model.enums.Role;
 import re.edu.model.entity.User;
+import re.edu.repository.assessmentRep.InternshipAssignmentRepository;
 import re.edu.repository.userRep.UserRepository;
 import re.edu.security.userDetail.CustomUserDetails;
 import re.edu.service.UserService;
@@ -31,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final ModelMapper modelMapper;
+    private final InternshipAssignmentRepository internshipAssignmentRepository;
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
@@ -63,16 +65,34 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse updateUser(Integer userId, UpdateUserRequest req) {
 
-        User user = userRepository.getUserById(userId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+        User user = userRepository.getUserById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
-        if (!user.getEmail().equals(req.getEmail()) && userRepository.existsByEmail(req.getEmail())) {
+        // update fullName nếu có gửi
+        if (req.getFullName() != null && !req.getFullName().isBlank()) {
 
-            throw new DuplicateResourceException("Email đã tồn tại");
+            user.setFullName(req.getFullName());
         }
 
-        user.setFullName(req.getFullName());
+        // update email nếu có gửi
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
 
-        user.setEmail(req.getEmail());
+            // check duplicate email
+            if (!user.getEmail().equals(req.getEmail())
+                    && userRepository.existsByEmail(req.getEmail())) {
+
+                throw new DuplicateResourceException("Email đã tồn tại");
+            }
+
+            user.setEmail(req.getEmail());
+        }
+
+        // update phoneNumber nếu có gửi
+        if (req.getPhoneNumber() != null
+                && !req.getPhoneNumber().isBlank()) {
+
+            user.setPhoneNumber(req.getPhoneNumber());
+        }
 
         return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
@@ -105,15 +125,70 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public String updateUserRole(Integer userId, Role role) {
+    public String updateUserRole(
+            Integer userId,
+            Role role
+    ) {
 
-        User targetUser = getTargetUser(userId);
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Không tìm thấy người dùng"
+                        )
+                );
 
-        targetUser.setRole(role);
+        /**
+         * Không cho đổi quyền ADMIN
+         */
+        if (user.getRole() == Role.ADMIN) {
 
-        userRepository.save(targetUser);
+            throw new AccessDeniedExceptionCustom(
+                    "Không thể thay đổi quyền của ADMIN"
+            );
+        }
 
-        return "Cập nhật vai trò người dùng thành công";
+        /**
+         * Mentor đã được phân công
+         * thì không cho đổi quyền
+         */
+        if (user.getRole() == Role.MENTOR) {
+
+            boolean assigned =
+                    internshipAssignmentRepository
+                            .existsByMentor_Id(userId);
+
+            if (assigned) {
+
+                throw new AccessDeniedExceptionCustom(
+                        "Giảng viên đã được phân công lớp, không thể đổi quyền"
+                );
+            }
+        }
+
+        /**
+         * Student đã được phân công
+         * thì không cho đổi quyền
+         */
+        if (user.getRole() == Role.STUDENT) {
+
+            boolean assigned =
+                    internshipAssignmentRepository
+                            .existsByStudent_Id(userId);
+
+            if (assigned) {
+
+                throw new AccessDeniedExceptionCustom(
+                        "Sinh viên đã được phân công thực tập, không thể đổi quyền"
+                );
+            }
+        }
+
+        user.setRole(role);
+
+        userRepository.save(user);
+
+        return "Cập nhật quyền thành công";
     }
 
     @Override

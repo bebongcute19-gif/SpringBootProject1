@@ -1,6 +1,7 @@
 package re.edu.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import re.edu.exception.DuplicateResourceException;
 import re.edu.exception.ResourceNotFoundException;
@@ -23,9 +24,16 @@ public class EvaluationCriteriaServiceImpl implements EvaluationCriteriaService 
     @Override
     public List<EvaluationCriteriaResponse> getAllCriteria() {
 
-        return evaluationCriteriaRepository.findAll().stream().map(this::toResponse).toList();
-    }
-
+        return evaluationCriteriaRepository.findAll
+                (Sort.by(Sort.Direction.ASC,"criterionId"))
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }/*List<Student> students =
+        studentRepository.findAll(
+                Sort.by(Sort.Direction.ASC, "id")
+            );
+            */
     @Override
     public EvaluationCriteriaResponse getCriterionById(Integer criterionId) {
 
@@ -59,33 +67,70 @@ public class EvaluationCriteriaServiceImpl implements EvaluationCriteriaService 
     }
 
     @Override
-    public EvaluationCriteriaResponse updateCriterion(Integer criterionId, EvaluationCriteriaRequest request) {
+    public EvaluationCriteriaResponse updateCriterion(
+            Integer criterionId,
+            EvaluationCriteriaRequest request
+    ) {
 
-        EvaluationCriteria criterion = evaluationCriteriaRepository.findById(criterionId).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tiêu chí đánh giá"));
+        EvaluationCriteria criterion =
+                evaluationCriteriaRepository.findById(criterionId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Không tìm thấy tiêu chí đánh giá"
+                                )
+                        );
 
-        if (request.getCriterionName() != null && !request.getCriterionName().isBlank()) {
+        // update criterion name
+        if (request.getCriterionName() != null
+                && !request.getCriterionName().isBlank()) {
 
-            criterion.setCriterionName(request.getCriterionName());
+            // check duplicate
+            if (!criterion.getCriterionName().equals(
+                    request.getCriterionName())
+                    &&
+                    evaluationCriteriaRepository
+                            .existsByCriterionName(
+                                    request.getCriterionName()
+                            )) {
+
+                throw new DuplicateResourceException(
+                        "Tên tiêu chí đánh giá đã tồn tại"
+                );
+            }
+
+            criterion.setCriterionName(
+                    request.getCriterionName()
+            );
         }
 
+        // update description
         if (request.getDescription() != null) {
 
-            criterion.setDescription(request.getDescription());
+            criterion.setDescription(
+                    request.getDescription()
+            );
         }
 
+        // update max score
         if (request.getMaxScore() != null) {
 
             if (request.getMaxScore().doubleValue() <= 0) {
 
-                throw new IllegalArgumentException("Điểm tối đa phải lớn hơn 0");
+                throw new IllegalArgumentException(
+                        "Điểm tối đa phải lớn hơn 0"
+                );
             }
 
-            criterion.setMaxScore(request.getMaxScore());
+            criterion.setMaxScore(
+                    request.getMaxScore()
+            );
         }
 
         criterion.setUpdatedAt(LocalDateTime.now());
 
-        return toResponse(evaluationCriteriaRepository.save(criterion));
+        return toResponse(
+                evaluationCriteriaRepository.save(criterion)
+        );
     }
 
     @Override

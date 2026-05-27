@@ -45,4 +45,8 @@ public interface AssessmentResultRepository
             Integer roundId,
             Integer criterionId
     );
+    boolean existsByRound_Id(Integer roundId);
+    List<AssessmentResult> findByEvaluatedBy_Id(Integer userId);
+    List<AssessmentResult> findByAssignment_AssignmentIdAndEvaluatedBy_Id(Integer assignmentId, Integer userId);
+    List<AssessmentResult> findByAssignment_AssignmentIdAndAssignment_Student_Id(Integer assignmentId, Integer studentId);
 }
